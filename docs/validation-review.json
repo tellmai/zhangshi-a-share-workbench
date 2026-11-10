@@ -1,0 +1,34 @@
+{
+  "date": "2026-10-23",
+  "report_id": "2026-10-23-ca41778d75ca",
+  "status": "draft",
+  "characters": 1116,
+  "sources": 8,
+  "cached_sources": 5,
+  "cover": {
+    "width": 1920,
+    "height": 1080,
+    "png": true
+  },
+  "python_tests": 43,
+  "frontend_contract_groups": 10,
+  "browser_interaction": "not_run_prior_origin_permission_denied",
+  "schedule": {
+    "enabled": false,
+    "time": "19:30",
+    "timezone": "Asia/Shanghai",
+    "refresh_quotes": true,
+    "extra_urls": [],
+    "closed_dates": []
+  },
+  "limitations": [
+    "深交所年度通知正文未成功读取；临时休市公告未自动核验，以同日沪深收盘报价补充确认开市",
+    "独立公告检索、筹码分布和除权检查尚未接入，代表股公告仍待人工复核",
+    "沪深两市成交额缺少两个独立原始来源的一致记录，正文省略数值",
+    "全市场涨停、炸板与封板率未完成同口径交叉核验，正文省略",
+    "缺少上一实际交易日的完整强势股反馈样本",
+    "最近3—5个实际交易日的完整同口径市场比较仍需补齐；当前历史小样本不外推",
+    "news: URLError: <urlopen error [Errno 2] No such file or directory>",
+    "收盘新闻本次未成功取得，复用5条同日已读取原文缓存，原读取时间保留"
+  ]
+}

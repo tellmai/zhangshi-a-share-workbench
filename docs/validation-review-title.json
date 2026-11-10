@@ -1,0 +1,52 @@
+{
+  "validated_at": "2026-10-24T09:43:43+08:00",
+  "report_id": "2026-10-23-5887ba00c272",
+  "market_date": "2026-10-23",
+  "cutoff_at": "2026-10-23T23:50:40.937281+08:00",
+  "context_method": "reused dated archived evidence; no fresh source check claimed",
+  "title": "创业板涨4.16%，信息安全能延续吗？",
+  "title_policy_version": "2.0",
+  "alternatives": [
+    {
+      "title": "创业板涨4.16%，信息安全能延续吗？",
+      "lines": [
+        "创业板涨4.16%",
+        "信息安全能延续吗？"
+      ]
+    },
+    {
+      "title": "创业板涨4.16%，信息安全走强",
+      "lines": [
+        "创业板涨4.16%",
+        "信息安全走强"
+      ]
+    },
+    {
+      "title": "信息安全走强，创业板涨4.16%",
+      "lines": [
+        "信息安全走强",
+        "创业板涨4.16%"
+      ]
+    }
+  ],
+  "cover": {
+    "width": 1920,
+    "height": 1080,
+    "file": "data\\reviews\\2026-10-23-5887ba00c272\\cover.png",
+    "visual_inspection": "offline actual SVG rendered to PNG and inspected; not browser screenshot"
+  },
+  "focused_python_tests_passed": 28,
+  "full_python_tests_passed": 94,
+  "frontend_contract_groups_passed": 29,
+  "browser_localhost_verification": "not_run_prior_origin_access_denied",
+  "original_task_update": {
+    "task_name": "A股抖音复盘收盘",
+    "chat_title": "复盘",
+    "thread_id": "6adb45da-0394-83e8-a4df-159de764e0ee",
+    "requirements_message_delivered": true,
+    "destination_turn_completed": true,
+    "backend_schedule_update_verified": false,
+    "verification_limit": "read_thread returns assistant content reference only; direct browser conversation load timed out"
+  },
+  "local_task_policy": "active for future local generations; schedule and enabled flag preserved"
+}

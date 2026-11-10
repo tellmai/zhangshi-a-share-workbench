@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+data/
+.env
+.venv/
+.vendor/
+*.log
+.desktop-env/
+.desktop-tools/
+build/
+dist/
+release/
+static/desktop.html
+*.spec.bak
+

@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#102631">
+  <title>涨势 · A股盘后研究台</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='10' fill='%23102631'/%3E%3Cpath d='M9 28V21h5v7m4 0V15h5v13m4 0V8h5v20' stroke='%234dd3b0' stroke-width='2' fill='%234dd3b0'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/review.css">
+  <link rel="stylesheet" href="/quant.css">
+  <link rel="stylesheet" href="/sources.css">
+  <link rel="stylesheet" href="/shortline.css">
+  <script src="/review.js" defer></script>
+  <script src="/stock.js" defer></script>
+  <script src="/quant.js" defer></script>
+  <script src="/sources.js" defer></script>
+  <script src="/shortline.js" defer></script>
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <aside class="sidebar">
+    <a class="brand" href="#overview"><span class="brand-mark"><i></i><i></i><i></i></span><span>涨势<small>AFTER CLOSE LAB</small></span></a>
+    <div class="workspace-label">我的研究工作台 <span>LOCAL</span></div>
+    <nav id="navigation" aria-label="主导航"></nav>
+    <div class="sidebar-bottom"><div class="pulse-dot"></div><div>研究有据，交易有序<small>行情留痕 · 规则透明 · 本机存储</small></div></div>
+  </aside>
+  <div class="app-shell">
+    <header class="topbar"><div class="breadcrumb">研究工作台 <span>/</span> <b id="crumb">盘后总览</b></div><div class="topbar-right"><span class="local-status"><i></i> 本地运行</span><button class="icon-button" id="help-button" aria-label="查看评分规则">?</button><span class="avatar">研</span></div></header>
+    <main>
+      <div class="page-heading"><div><div class="eyebrow">AFTER CLOSE RESEARCH</div><h1 id="page-title">把市场脉络，看得更清楚。</h1><p id="page-subtitle">从市场情绪到板块共振，找到值得进一步研究的强势股。</p></div><div class="heading-actions"><span id="date-label" class="date-label"></span><button class="button" id="export-button"></button><button class="button primary" id="sync-button"></button></div></div>
+      <div id="data-banner" role="status"></div>
+      <section id="sync-progress" class="sync-progress" aria-label="行情更新进度" hidden></section>
+      <section class="control-bar" aria-label="筛选模式"><div id="style-tabs" class="segmented"></div><div class="control-right"><span id="scope-label"></span><button class="button small" id="filter-button"></button></div></section>
+      <div id="analysis-feedback" class="analysis-feedback" role="status" aria-live="polite" aria-atomic="true" hidden></div>
+      <div id="filter-panel" class="filter-panel" hidden></div>
+      <div id="content"><div class="loading"><div class="spinner"></div>正在读取行情快照与分析规则…</div></div>
+      <footer><span>涨势 · 盘后研究台 <b>v0.6.0</b></span><span>规则评分用于观察排序 · 收盘强势不代表次日上涨</span></footer>
+    </main>
+  </div>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <div id="drawer-overlay" class="overlay" hidden></div>
+  <aside id="stock-drawer" class="stock-drawer" role="dialog" aria-modal="true" aria-label="个股研究详情" hidden></aside>
+  <dialog id="sync-dialog"><form id="sync-form"><div class="dialog-heading"><div><div class="eyebrow">DATA CONNECTION</div><h2>更新免费盘后数据</h2></div><button type="button" class="icon-button close-dialog" aria-label="关闭">×</button></div><p>连接新浪、腾讯与东方财富公开接口，并检查报价日期与收盘。免费接口可能限流或缺字段，失败时保留原快照。</p><label>目标交易日<input name="date" type="date" required></label><div class="form-grid"><label>展开行业前 N 个<select name="industry_limit"><option value="6">6 个 · 快速体验</option><option value="12" selected>12 个 · 推荐</option><option value="100">全部行业 · 较慢</option></select></label><label>展开题材前 N 个<select name="theme_limit"><option value="5">5 个</option><option value="8" selected>8 个 · 推荐</option><option value="15">15 个</option><option value="0">暂不获取题材</option></select></label></div><div class="callout">先按供应商完整板块列表的涨幅选择研究范围，再展开全部成分。综合强度只在已展开板块内比较，题材成分重叠单独标注。首次历史数据补齐可能需要较长时间。</div><label class="checkbox"><input type="checkbox" name="confirm" required> 我了解免费数据的范围与延迟，缺失字段将明确标注。</label><button class="button primary wide" type="submit">开始更新</button></form></dialog>
+  <input type="file" id="snapshot-file" accept=".json,application/json" hidden>
+  <input type="file" id="reference-file" accept=".csv,text/csv" hidden>
+  <dialog id="reference-dialog"><form id="reference-form"><div class="dialog-heading"><h2>导入参考收盘价</h2><button type="button" class="icon-button close-dialog" aria-label="关闭">×</button></div><p>CSV 需包含 code/代码、close/收盘价，可选 date/日期；支持UTF-8与GB18030。证券代码如 600000.SH 或当前快照内的六位代码。只接受收盘字段，不把盘中现价当收盘。仅核对同日收盘价，不认证两个数据源的独立性。</p><label>参考来源名称<input name="source" required placeholder="例如：券商导出行情"></label><label>交易日期<input name="trade_date" type="date" required></label><label>参考 CSV 文件<input name="file" type="file" accept=".csv" required></label><button class="button primary wide" type="submit">检查并导入</button></form></dialog>
+</body>
+</html>

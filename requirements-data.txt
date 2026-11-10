@@ -1,0 +1,3 @@
+# Optional only; the built-in Tencent/Sina/Eastmoney paths use the standard library.
+baostock==0.9.4
+akshare==1.19.3

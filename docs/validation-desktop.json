@@ -1,0 +1,48 @@
+{
+  "checked_at": "2026-10-24T13:59:15+08:00",
+  "version": "0.6.0",
+  "platform": "Windows x64",
+  "native_transport": "in-process bridge; no HTTP listener",
+  "desktop": {
+    "ok": true,
+    "desktop": true,
+    "version": "0.6.0",
+    "trade_date": "2026-10-23",
+    "stocks": 5223,
+    "nav": 7,
+    "location": "file:",
+    "quant": true
+  },
+  "worker": {
+    "ok": true,
+    "data": {
+      "akshare": "1.19.3",
+      "baostock": "00.9.40",
+      "pandas": "3.1.0",
+      "numpy": "2.4.6",
+      "scope": "本机打包依赖检查，未请求行情"
+    }
+  },
+  "feed_probe": {
+    "ok": true,
+    "provider": "tencent",
+    "date": "2026-10-23",
+    "code": "600838.SH",
+    "close": 11.0
+  },
+  "python_tests": 134,
+  "ui_contract_groups": 43,
+  "installer": {
+    "path": "release\\Zhangshi-Setup-0.6.0-x64.exe",
+    "bytes": 110994086,
+    "sha256": "2869ad129dbbee8af7f666f76c2ffdf07460dc406d5d62e79cc77e13f4d7423d",
+    "signed": false
+  },
+  "executable": {
+    "path": "dist\\Zhangshi\\Zhangshi.exe",
+    "bytes": 15624833,
+    "sha256": "57cb412bdb33ea442774ca8e14a25d8f8b97fefa34a35416bcaf7f1fff7bd74b"
+  },
+  "installer_tested": "Compiled successfully; not installed automatically on the user computer",
+  "data": "Current project data included. Existing installer data is not overwritten; uninstall preserves user data."
+}

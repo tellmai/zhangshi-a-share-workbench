@@ -1,0 +1,25 @@
+{
+  "ok": true,
+  "data": {
+    "quote": {
+      "name": "上海九百",
+      "stamp": "2026-10-23T16:15:00",
+      "bar": {
+        "date": "2026-10-23",
+        "open": 11.0,
+        "high": 11.0,
+        "low": 11.0,
+        "close": 11.0,
+        "pre_close": 10.0,
+        "pct_chg": 10.0,
+        "volume_shares": 21359400.0,
+        "amount_yuan": 234953015.0,
+        "turnover_rate": 5.33,
+        "up_limit": 11.0,
+        "down_limit": 9.0,
+        "adj_factor": null
+      }
+    },
+    "scope": "单股带日期收盘字段测试"
+  }
+}

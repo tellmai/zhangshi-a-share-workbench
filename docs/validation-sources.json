@@ -1,0 +1,80 @@
+{
+  "validated_at": "2026-10-24T10:03:58+08:00",
+  "python_tests_passed": 105,
+  "frontend_contract_groups_passed": 34,
+  "network_test": {
+    "sina": {
+      "state": "success",
+      "checked_at": "2026-10-24T09:54:37+08:00",
+      "requested_date": "2026-10-23",
+      "data_date": "2026-10-23",
+      "elapsed_seconds": 1.17,
+      "scope": "仅参考收盘字段测试",
+      "evidence": "evidence\\sources-2026-10-23-5ed71cc8dfd4411d\\sina.json"
+    },
+    "tencent": {
+      "state": "success",
+      "checked_at": "2026-10-24T09:54:37+08:00",
+      "requested_date": "2026-10-23",
+      "data_date": "2026-10-23",
+      "elapsed_seconds": 1.5,
+      "scope": "单股带日期收盘字段测试",
+      "evidence": "evidence\\sources-2026-10-23-5ed71cc8dfd4411d\\tencent.json"
+    },
+    "eastmoney": {
+      "state": "success",
+      "checked_at": "2026-10-24T09:54:37+08:00",
+      "requested_date": "2026-10-23",
+      "data_date": "2026-10-23",
+      "elapsed_seconds": 6.72,
+      "scope": "东财历史通道测试，不代表全量列表已可用",
+      "evidence": "evidence\\sources-2026-10-23-5ed71cc8dfd4411d\\eastmoney.json"
+    },
+    "baostock": {
+      "state": "success",
+      "checked_at": "2026-10-24T09:54:38+08:00",
+      "requested_date": "2026-10-23",
+      "data_date": "2026-10-23",
+      "elapsed_seconds": 9.84,
+      "scope": "单股历史，不代表全市场可用",
+      "evidence": "evidence\\sources-2026-10-23-5ed71cc8dfd4411d\\baostock.json"
+    },
+    "akshare": {
+      "state": "success",
+      "checked_at": "2026-10-24T09:54:38+08:00",
+      "requested_date": "2026-10-23",
+      "data_date": "2026-10-23",
+      "elapsed_seconds": 15.08,
+      "scope": "单股历史，不代表全市场可用",
+      "evidence": "evidence\\sources-2026-10-23-5ed71cc8dfd4411d\\akshare.json"
+    },
+    "ths": {
+      "state": "research_only",
+      "checked_at": "2026-10-24T09:54:44+08:00",
+      "requested_date": "2026-10-23",
+      "data_date": "2026-10-23",
+      "elapsed_seconds": 10.19,
+      "scope": "所选单一行业指数，仅独立研究，不是全市场排名",
+      "evidence": "evidence\\sources-2026-10-23-5ed71cc8dfd4411d\\ths.json"
+    }
+  },
+  "tested_code": "600838.SH",
+  "tested_ths_industry": "半导体",
+  "ifind": {
+    "sdk_installed": false,
+    "login_attempted": false,
+    "market_adapter_connected": false
+  },
+  "baostock_merge_check": {
+    "sessions": 246,
+    "chart_bars": 60,
+    "adjustment": "qfq",
+    "macd_available": true,
+    "saved_to_active": false
+  },
+  "active_sha256": "70537bace05ad4e6b24fc707c41320f296233e1c8d8bdeb99b3f214e6a85a31b",
+  "active_mtime_older_than_probes": true,
+  "source_independence": "AKShare/Eastmoney and direct Eastmoney share an upstream; route count is not independent source count",
+  "browser_interaction": "not_run_prior_origin_access_denied",
+  "ui_verification": "offline source contracts; no browser screenshot"
+}

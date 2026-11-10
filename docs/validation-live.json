@@ -1,0 +1,49 @@
+{
+  "trade_date": "2026-10-23",
+  "mode": "live",
+  "snapshot": "2026-10-23-220155569787.json",
+  "quote_records": 5223,
+  "matched_closes": 5218,
+  "conflicts": 0,
+  "history_target": 80,
+  "history_success": 80,
+  "expanded_sectors": 8,
+  "results": {
+    "industry": {
+      "balanced": {
+        "candidates": 24,
+        "ranked_sectors": 4
+      },
+      "relay": {
+        "candidates": 8,
+        "ranked_sectors": 4
+      },
+      "trend": {
+        "candidates": 25,
+        "ranked_sectors": 4
+      }
+    },
+    "theme": {
+      "balanced": {
+        "candidates": 10,
+        "ranked_sectors": 4
+      },
+      "relay": {
+        "candidates": 7,
+        "ranked_sectors": 4
+      },
+      "trend": {
+        "candidates": 11,
+        "ranked_sectors": 4
+      }
+    }
+  },
+  "ui_final_recheck": "blocked by browser origin approval; earlier overview, detail, chart, search and mode switching observed",
+  "unverified": [
+    "announcements",
+    "chip distribution",
+    "strategy return effectiveness",
+    "full theme universe",
+    "prior-day promotion rate"
+  ]
+}

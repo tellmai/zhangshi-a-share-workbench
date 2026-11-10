@@ -1,0 +1,18 @@
+{
+  "code": "600838.SH",
+  "name": "上海九百",
+  "trade_date": "2026-10-23",
+  "history_sessions": 199,
+  "chart_bars": 60,
+  "adjustment": "qfq",
+  "last_raw_close": 11.0,
+  "ma5": 9.286,
+  "ma10": 8.823,
+  "ma20": 8.614,
+  "macd_available": true,
+  "needs_history": false,
+  "evidence": "evidence\\history-2026-10-23-600838.SH-3d668c82",
+  "python_tests": 54,
+  "stock_ui_contract_groups": 6,
+  "browser_interaction": "not_run_prior_origin_access_denied"
+}

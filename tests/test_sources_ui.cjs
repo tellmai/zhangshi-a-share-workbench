@@ -1,0 +1,25 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
+const listeners={},nodes=new Map();const node=s=>{if(!nodes.has(s))nodes.set(s,{value:'',textContent:'',innerHTML:'',classList:{add(){},remove(){},toggle(){}},addEventListener(){},setAttribute(){}});return nodes.get(s);};
+const c=vm.createContext({document:{querySelector:node,querySelectorAll:()=>[],addEventListener(t,f){(listeners[t]??=[]).push(f);}},window:{addEventListener(){}},location:{hash:'#data'},localStorage:{getItem:()=>null},URL,TextDecoder,setTimeout:()=>1,clearTimeout(){},requestAnimationFrame(){}});
+vm.runInContext(fs.readFileSync(path.join(__dirname,'../static/sources.js'),'utf8'),c);
+vm.runInContext(fs.readFileSync(path.join(__dirname,'../static/app.js'),'utf8').replace(/\nboot\(\);\s*$/,'\n'),c);
+const run=s=>vm.runInContext(s,c);
+c.catalog=['tencent','sina','eastmoney','baostock','akshare','ths','ifind'].map(id=>({id,name:id,role:'角色',family:id==='akshare'?'东方财富':id,access:'接口',installed:id!=='ifind',module:id==='ifind'?'iFinDPy':null,docs:'https://example.com/'}));
+c.data={settings:{market_provider:'auto',market_fallback:true,history_order:['tencent','eastmoney','baostock'],library_timeout:30},snapshot_date:'2026-10-23',catalog:c.catalog,job:{state:'idle'},health:{ths:{state:'research_only',message:'<script>example</script>',checked_at:'2026-10-24',scope:'仅一个行业',data_date:'2026-10-23',sample:[{日期:'2026-10-23'}]}},notes:['同源不是独立来源']};
+run('sourcesState.data=data;state.analysis={stocks:[{code:"600838.SH"}]};render=function(){};');
+let html=run('sourceHubHTML()');assert.match(html,/保存来源设置/);assert.match(html,/检测全部免费通道/);assert.match(html,/独立研究可用/);assert.match(html,/&lt;script&gt;/);assert.doesNotMatch(html,/<script>/);assert.match(html,/不保存账号密码/);assert.match(html,/官方SDK登录检测<\/button>/);assert.match(html,/官方SDK登录检测/);assert.match(html,/账号.*?disabled/s);
+console.log('PASS: source choices, actual probe scope and honest iFinD setup state render safely');
+run('sourcesState.data.job.state="running";');assert.match(run('sourceHubHTML()'),/fieldset disabled/);run('sourcesState.data.job.state="idle";');
+console.log('PASS: running diagnostics disable configuration and duplicate tests');
+(async()=>{
+ const bytes=new TextEncoder().encode('证券代码,收盘价,日期\n600838,11.00,20261023');c.file={size:bytes.length,arrayBuffer:async()=>bytes.buffer};
+ const rows=await run('readSourceReferenceCSV(file)');assert.equal(rows[0].code,'600838.SH');assert.equal(rows[0].date,'2026-10-23');assert.equal(rows[0].close,'11.00');
+ assert.throws(()=>run('parseCSV("代码,最新价\\n600838,11")'),/close/);
+ assert.throws(()=>run('parseCSV("code,代码,close\\n600838,600838,11")'),/重复/);
+ console.log('PASS: client CSV normalizes known ticker/date aliases and rejects intraday-price or ambiguous headers');
+ c.calls=[];c.response=async(...args)=>{c.calls.push(args);return c.data;};run('api=response;sourcesState.dirty=true;');await run('startSourceTest("tencent")');assert.equal(c.calls.length,0);
+ console.log('PASS: unsaved settings cannot silently be used for a connection test');
+ const index=fs.readFileSync(path.join(__dirname,'../static/index.html'),'utf8');assert(index.indexOf('/sources.js')<index.indexOf('/app.js'));
+ assert.match(fs.readFileSync(path.join(__dirname,'../static/app.js'),'utf8'),/sourceHubHTML\(\)/);
+ console.log('PASS: source management is wired into the existing data page');
+})().catch(e=>{console.error(e);process.exitCode=1;});

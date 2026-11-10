@@ -1,0 +1,82 @@
+{
+  "validated_at": "2026-10-24T09:20:51+08:00",
+  "application_version": "0.3.0",
+  "engine_version": "1.0.0",
+  "python_tests": {
+    "total_passed": 77,
+    "quant_and_api_passed_after_final_backend_change": 23
+  },
+  "frontend_contract_groups_passed": {
+    "existing_modes": 5,
+    "review": 5,
+    "stock": 6,
+    "quant": 7,
+    "total": 23
+  },
+  "css_check": "balanced_delimiters_only; browser layout not tested",
+  "browser_interaction": "not_run_prior_origin_access_denied",
+  "http_api_check": "in_memory_handler_without_socket_access",
+  "chart_visual_check": "actual_svg_chart_function_rendered_offline_and_inspected; not_browser_screenshot",
+  "data": {
+    "trade_date": "2026-10-23",
+    "mode": "active",
+    "source": "腾讯日期报价＋新浪板块＋东方财富涨停池",
+    "total": 5223,
+    "universe": 4422,
+    "history_60": 80,
+    "history_120": 80,
+    "default_start": "2026-07-23",
+    "default_end": "2026-10-23",
+    "sample_warning": "当前已下载样本，存在选样与幸存者偏差，不能视为全市场回测"
+  },
+  "scan": {
+    "id": "263ebe6fd36e6eeb3345",
+    "funnel": {
+      "total": 5223,
+      "universe": 4422,
+      "history_ready": 80,
+      "passed": 3,
+      "shortlist": 3
+    }
+  },
+  "backtest": {
+    "id": "81e2b1648a7a6c44338a",
+    "strategy_name": "趋势突破·初始研究版",
+    "strategy_version": 1,
+    "start": "2026-07-23",
+    "end": "2026-10-23",
+    "sessions": 61,
+    "sample_count": 80,
+    "status": "completed",
+    "metrics": {
+      "total_return_pct": -18.596,
+      "max_drawdown_pct": 21.399,
+      "final_equity": 81403.82,
+      "closed_trades": 42,
+      "win_rate_pct": 28.57,
+      "mean_trade_return_pct": -2.629,
+      "total_fees": 1560.261,
+      "open_positions": 1,
+      "reference_return_pct": 6.517
+    }
+  },
+  "reproduction": {
+    "id": "1d64d840f203bbbd768c",
+    "replayed_from": "81e2b1648a7a6c44338a",
+    "input_digest": "b3289883f96d81160cced3b66f6f1e52f8ef25cc867209f61a77d5322d57af80",
+    "equal_fields": {
+      "metrics": true,
+      "curve": true,
+      "trades": true,
+      "orders": true,
+      "input_digest": true
+    },
+    "input_digest_verified": true
+  },
+  "limits": [
+    "downloaded_current_sample_selection_and_survivorship_bias",
+    "missing_point_in_time_universe_and_ST_status",
+    "missing_historical_limits_and_corporate_action_details",
+    "no_broker_orders"
+  ]
+}

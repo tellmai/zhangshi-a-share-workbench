@@ -1,0 +1,141 @@
+{
+  "validated_at": "2026-10-24T09:30:42+08:00",
+  "python_tests_passed": 86,
+  "frontend_contract_groups_passed": 27,
+  "sector_backend_tests": 9,
+  "sector_ui_groups": 4,
+  "ui_method": "offline_source_contracts; no origin/browser access",
+  "browser_interaction": "not_run_prior_origin_access_denied",
+  "ranking": "daily_return_descending_positive_only; industry_and_theme_separate",
+  "full_provider_list_policy": "requires complete same-source dated list matching expected count; otherwise expanded same-day complete constituents",
+  "data": [
+    {
+      "mode": "active",
+      "type": "industry",
+      "date": "2026-10-23",
+      "source": "已展开板块同日成分",
+      "scope": "仅已展开且同日成分完整的板块；未覆盖全市场",
+      "complete_universe": false,
+      "available_count": 7,
+      "expanded_count": 9,
+      "leaders": [
+        {
+          "id": "new_yqyb",
+          "name": "仪器仪表",
+          "daily_pct": 2.69
+        },
+        {
+          "id": "new_dqhy",
+          "name": "电器行业",
+          "daily_pct": 2.64
+        },
+        {
+          "id": "new_jxhy",
+          "name": "机械行业",
+          "daily_pct": 2.48
+        },
+        {
+          "id": "new_ysbz",
+          "name": "印刷包装",
+          "daily_pct": 2.07
+        },
+        {
+          "id": "new_cmyl",
+          "name": "传媒娱乐",
+          "daily_pct": 1.83
+        }
+      ]
+    },
+    {
+      "mode": "active",
+      "type": "theme",
+      "date": "2026-10-23",
+      "source": "已展开板块同日成分",
+      "scope": "仅已展开且同日成分完整的板块；未覆盖全市场",
+      "complete_universe": false,
+      "available_count": 8,
+      "expanded_count": 8,
+      "leaders": [
+        {
+          "id": "gn_xxaq",
+          "name": "信息安全",
+          "daily_pct": 6.89
+        },
+        {
+          "id": "gn_hljr",
+          "name": "互联金融",
+          "daily_pct": 4.32
+        },
+        {
+          "id": "gn_znjq",
+          "name": "智能机器",
+          "daily_pct": 4.22
+        },
+        {
+          "id": "gn_kc50",
+          "name": "科创50",
+          "daily_pct": 4.21
+        },
+        {
+          "id": "gn_hmgn",
+          "name": "鸿蒙概念",
+          "daily_pct": 3.72
+        }
+      ]
+    },
+    {
+      "mode": "demo",
+      "type": "industry",
+      "date": "2026-10-22",
+      "source": "已展开板块同日成分",
+      "scope": "仅已展开且同日成分完整的板块；未覆盖全市场",
+      "complete_universe": false,
+      "available_count": 6,
+      "expanded_count": 6,
+      "leaders": [
+        {
+          "id": "I0",
+          "name": "算力设备",
+          "daily_pct": 6.49
+        },
+        {
+          "id": "I1",
+          "name": "机器人",
+          "daily_pct": 3.68
+        },
+        {
+          "id": "I2",
+          "name": "储能设备",
+          "daily_pct": 0.75
+        }
+      ]
+    },
+    {
+      "mode": "demo",
+      "type": "theme",
+      "date": "2026-10-22",
+      "source": "已展开板块同日成分",
+      "scope": "仅已展开且同日成分完整的板块；未覆盖全市场",
+      "complete_universe": false,
+      "available_count": 3,
+      "expanded_count": 3,
+      "leaders": [
+        {
+          "id": "T0",
+          "name": "智能制造",
+          "daily_pct": 3.17
+        },
+        {
+          "id": "T1",
+          "name": "数字基础设施",
+          "daily_pct": 2.54
+        },
+        {
+          "id": "T2",
+          "name": "绿色转型",
+          "daily_pct": 1.73
+        }
+      ]
+    }
+  ]
+}
