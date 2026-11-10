@@ -184,12 +184,16 @@ def rotate_backups(repository):
     paths = sorted(folder.glob("*.zip"), key=lambda p: p.stat().st_mtime, reverse=True)
     keep, days, weeks = set(), set(), set()
     from datetime import datetime
+    stamps = {p: datetime.fromtimestamp(p.stat().st_mtime) for p in paths}
     for path in paths:
-        stamp = datetime.fromtimestamp(path.stat().st_mtime)
-        day, week = stamp.date().isoformat(), stamp.isocalendar()[:2]
+        stamp = stamps[path]
+        day = stamp.date().isoformat()
         if day not in days and len(days) < 7:
             keep.add(path); days.add(day)
-        elif week not in weeks and len(weeks) < 4:
+    daily_weeks = {stamps[p].isocalendar()[:2] for p in keep}
+    for path in paths:
+        week = stamps[path].isocalendar()[:2]
+        if week not in daily_weeks and week not in weeks and len(weeks) < 4:
             keep.add(path); weeks.add(week)
     removed = []
     for path in paths:

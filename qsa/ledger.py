@@ -194,7 +194,7 @@ class Ledger:
         identity = digest({"trades": [(t["id"], t["_revision"]) for t in rows], "cash": [(x["id"], x["_revision"]) for x in cashflows], "opening_cash": info["opening_cash"]})
         confirmed = info.get("ledger_digest") == identity and trade_day(info.get("confirmed_at") or "1970-01-01T00:00:00Z") == day
         equity = money(cash + invested)
-        previous = [x for x in self.repo.list("valuations", 100000) if x["account"] == account and x["date"] <= day]
+        previous = [x for x in self.repo.list("valuations", 100000) if x["account"] == account and x["date"] <= day and not x.get("incomplete")]
         contribution = sum(x["amount"] for x in cashflows)
         high_water = max([float(equity), float(info["opening_cash"])+contribution] + [x["equity"]+contribution-x.get("net_contributions", 0) for x in previous])
         return {"account": account, "asof": cutoff, "cash": float(money(cash)), "invested": float(money(invested)),

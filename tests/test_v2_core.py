@@ -1,12 +1,13 @@
 import copy
 import json
+import os
 import tempfile
 import threading
 import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from qsa.archive import backup, migrate, restore, verify_backup
+from qsa.archive import backup, migrate, restore, rotate_backups, verify_backup
 from qsa.contracts import ResearchConfig, digest, load_config, timestamp
 from qsa.data import SnapshotStore
 from qsa.jobs import JobStore
@@ -269,6 +270,21 @@ class V2CoreTests(unittest.TestCase):
         self.assertEqual(restored.get("notes", "keep")["value"], 42)
         self.assertEqual((destination/"active.json").read_bytes(), before)
         with self.assertRaises(ValueError): restore(saved["path"], self.root)
+
+    def test_backup_retention_keeps_daily_and_earlier_distinct_weeks(self):
+        from datetime import datetime, timedelta
+        folder=self.repo.home/"backups";folder.mkdir()
+        latest=datetime(2026,11,10,21,30)
+        for i in range(49):
+            for copy in range(2):
+                p=folder/f"{i:02}-{copy}.zip";p.write_bytes(b"test restore point")
+                stamp=(latest-timedelta(days=i,minutes=copy)).timestamp()
+                os.utime(p,(stamp,stamp))
+        result=rotate_backups(self.repo)
+        self.assertEqual(result["kept"],11)
+        kept={int(p.name.split("-")[0]) for p in folder.glob("*.zip")}
+        self.assertTrue(set(range(7)).issubset(kept))
+        self.assertEqual(len(kept-set(range(7))),4)
 
 
 if __name__ == "__main__":

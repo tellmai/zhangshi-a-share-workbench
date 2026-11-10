@@ -170,7 +170,11 @@ class WorkbenchV2:
                 chosen = max(matches, key=lambda r: (r["available_at"], r["id"]))
                 prior.append(self.repo.read_object(chosen["object_id"]))
         account = self.ledger.portfolio(dataset, "demo" if mode == "demo" else "manual", asof=cutoff)
-        return evaluate_day(dataset, config, prior, cutoff, snapshot_id, account)
+        result = evaluate_day(dataset, config, prior, cutoff, snapshot_id, account)
+        result["account_context"] = {k: account[k] for k in ("account", "asof", "cash", "equity", "invested",
+            "high_water", "positions", "confirmed", "incomplete", "ledger_digest")}
+        result["prior_report_ids"] = [r["id"] for r in prior if r.get("id")]
+        return result
 
     def enqueue(self, kind, payload=None, spawn=True):
         if kind not in KINDS:
@@ -318,7 +322,9 @@ class WorkbenchV2:
                 raise ValueError("决策时点不能在未来")
             report = self.calculate(dataset, snapshot["snapshot_id"], payload["config"], cutoff)
             manifest = run_manifest(snapshot["snapshot_id"], payload["config"], report["context"]["decision_time"],
-                session_calendar=dataset["meta"]["calendar"], synthetic=bool(dataset["meta"].get("synthetic")), frozen_at=utc_now())
+                session_calendar=dataset["meta"]["calendar"], synthetic=bool(dataset["meta"].get("synthetic")),
+                account_input_id=self.repo.object(report["account_context"], "account-budget-input"),
+                prior_report_ids=report["prior_report_ids"], frozen_at=utc_now())
             report.update(id=job["id"], manifest=manifest)
             progress(85, "冻结榜单、证据卡和运行版本")
             object_id = self.repo.object(report, "research-report")
@@ -333,9 +339,10 @@ class WorkbenchV2:
             expiry_day = next_days[0] if next_days and dataset["meta"].get("calendar_verified") else job["trade_date"]
             expiry = expiry_day + "T23:59:59+08:00"
             for account in ("demo",) if mode == "demo" else ("manual", "shadow"):
-                portfolio = self.ledger.portfolio(dataset, account)
-                value_id = f"{account}:{job['trade_date']}:{portfolio['ledger_digest']}:{snapshot['snapshot_id']}"
-                self.repo.put("valuations", value_id, {"id": value_id, "account": account, "date": job["trade_date"],
+                portfolio = self.ledger.portfolio(dataset, account, asof=report["context"]["decision_time"])
+                valuation_day = datetime.fromisoformat(portfolio["asof"]).astimezone(SHANGHAI).date().isoformat()
+                value_id = f"{account}:{valuation_day}:{portfolio['ledger_digest']}:{snapshot['snapshot_id']}"
+                self.repo.put("valuations", value_id, {"id": value_id, "account": account, "date": valuation_day,
                     "equity": portfolio["equity"], "net_contributions": portfolio["net_contributions"],
                     "incomplete": portfolio["incomplete"], "snapshot_id": snapshot["snapshot_id"]}, immutable=True)
                 for position in portfolio["positions"]:
