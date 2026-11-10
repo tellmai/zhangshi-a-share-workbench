@@ -10,7 +10,8 @@ def running_instance(url):
     try:
         with build_opener(ProxyHandler({})).open(url+'/api/status',timeout=2) as response:
             status=json.load(response)
-        return isinstance(status,dict) and status.get('application_id')=='after-close-lab'
+        from qsa.version import APP_VERSION
+        return isinstance(status,dict) and status.get('application_id')=='after-close-lab' and status.get('version',APP_VERSION)==APP_VERSION
     except (OSError,ValueError):return False
 
 

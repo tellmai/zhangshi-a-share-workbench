@@ -12,4 +12,9 @@ dist/
 release/
 static/desktop.html
 *.spec.bak
+.runtime-env/
+output/
+外部资料/
+.pytest_cache/
+
 

@@ -3,7 +3,9 @@ from __future__ import annotations
 import copy
 import json
 import math
+import os
 import random
+import tempfile
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
@@ -19,7 +21,7 @@ def iso_date(value):
     return datetime.strptime(value, "%Y%m%d").date().isoformat()
 
 
-def validate_dataset(dataset):
+def validate_dataset(dataset, *, max_bars=1000):
     """Fail closed: reject invalid snapshots rather than silently repairing quotes."""
     if not isinstance(dataset, dict) or dataset.get("schema_version") != 1:
         raise ValueError("需要 schema_version=1 的行情快照")
@@ -47,8 +49,8 @@ def validate_dataset(dataset):
             raise ValueError("证券代码、名称不能为空，代码不能重复")
         codes.add(code)
         bars = stock.get("bars", [])
-        if len(bars) > 1000:
-            raise ValueError(f"{code} 单次最多导入 1000 根日线")
+        if len(bars) > max_bars:
+            raise ValueError(f"{code} 单次最多导入 {max_bars} 根日线")
         dates = set()
         for bar in bars:
             bday = bar.get("date", "")
@@ -127,9 +129,18 @@ def validate_dataset(dataset):
 def atomic_json(path, data):
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    temp = path.with_suffix(".tmp")
-    temp.write_text(json.dumps(data, ensure_ascii=False, allow_nan=False), encoding="utf-8")
-    temp.replace(path)
+    raw = json.dumps(data, ensure_ascii=False, allow_nan=False).encode("utf-8")
+    temp = None
+    try:
+        with tempfile.NamedTemporaryFile(dir=path.parent, prefix=path.name+".", suffix=".tmp", delete=False) as stream:
+            temp = Path(stream.name)
+            stream.write(raw)
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(temp, path)
+    finally:
+        if temp:
+            temp.unlink(missing_ok=True)
 
 
 class SnapshotStore:
@@ -139,15 +150,24 @@ class SnapshotStore:
         self.demo = make_demo()
         self.active = self.demo
         self.active_mtime = None
+        self.load_error = None
         marker = self.root / "active.json"
         if marker.exists():
             try:
                 self.active = validate_dataset(json.loads(marker.read_text(encoding="utf-8")))
                 self.active_mtime = marker.stat().st_mtime_ns
-            except (ValueError, OSError, TypeError):
-                pass
+            except (ValueError, OSError, TypeError, KeyError) as error:
+                self.load_error = f"已有快照读取失败，原文件保留：{type(error).__name__}: {str(error)[:300]}"
 
     def save(self, dataset):
+        with self.transaction():
+            return self._save(dataset)
+
+    def transaction(self):
+        from .file_lock import data_lock
+        return data_lock(self.root)
+
+    def _save(self, dataset):
         validate_dataset(dataset)
         stamp = datetime.now(SHANGHAI).strftime("%H%M%S%f")
         path = self.root / "snapshots" / f"{dataset['meta']['trade_date']}-{stamp}.json"
@@ -155,6 +175,7 @@ class SnapshotStore:
         atomic_json(self.root / "active.json", dataset)
         self.active = dataset
         self.active_mtime = (self.root / "active.json").stat().st_mtime_ns
+        self.load_error = None
         return path.name
 
     def read(self, mode="active"):

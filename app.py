@@ -13,8 +13,8 @@ from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
 ROOT = Path(__file__).resolve().parent
-APP_VERSION = "0.6.0"
-if (ROOT / ".vendor").exists():
+from qsa.version import APP_VERSION
+if sys.version_info[:2] == (3, 11) and (ROOT / ".vendor").exists():
     sys.path.insert(0, str(ROOT / ".vendor"))
 
 from qsa.analytics import analyze, stock_detail
@@ -35,6 +35,17 @@ class Workbench:
         self.histories = StockHistoryService(self.store, self.lock)
         self.quant = QuantService(self.store, self.lock)
         self.sources = SourceService(self.store)
+        self._v2 = None
+        from qsa.application import Application
+        self.application = Application(self)
+
+    @property
+    def v2(self):
+        with self.lock:
+            if self._v2 is None:
+                from qsa.service_v2 import WorkbenchV2
+                self._v2 = WorkbenchV2(self.store)
+            return self._v2
 
     def begin_sync(self, message):
         with self.lock:
@@ -133,52 +144,11 @@ def make_handler(workbench):
         def do_GET(self):
             if not self.guard():
                 return
-            parsed = urlparse(self.path)
-            params = parse_qs(parsed.query)
-            try:
-                if parsed.path == "/api/status":
-                    with workbench.lock:
-                        self.send(200, {"csrf": workbench.csrf, "job": workbench.job, "active_meta": workbench.store.active["meta"], "today": datetime.now(SHANGHAI).date().isoformat(), "version": APP_VERSION, "application_id": "after-close-lab", "runtime":"web"})
-                elif parsed.path == "/api/analysis":
-                    dataset = workbench.store.read(params.get("mode", ["active"])[0])
-                    self.send(200, analyze(dataset))
-                elif parsed.path == "/api/stock":
-                    dataset = workbench.store.read(params.get("mode", ["active"])[0])
-                    self.send(200, stock_detail(dataset, params.get("code", [""])[0]))
-                elif parsed.path == "/api/stock/history":
-                    self.send(200, workbench.histories.status(params.get("code", [""])[0], params.get("mode", ["active"])[0], params.get("date", [None])[0]))
-                elif parsed.path == "/api/snapshot":
-                    self.send(200, workbench.store.read(params.get("mode", ["active"])[0]))
-                elif parsed.path == "/api/reviews":
-                    self.send(200, workbench.reviews.status())
-                elif parsed.path == "/api/sources":
-                    self.send(200, workbench.sources.status())
-                elif parsed.path == "/api/quant/status":
-                    self.send(200, workbench.quant.status(params.get("mode", ["active"])[0]))
-                elif parsed.path == "/api/quant/stocks":
-                    self.send(200, workbench.quant.stock_choices(params.get("mode", ["active"])[0], params.get("q", [""])[0]))
-                elif parsed.path == "/api/quant/result":
-                    self.send(200, workbench.quant.store.read_run(params.get("id", [""])[0]))
-                elif parsed.path == "/api/quant/export":
-                    body, mime = workbench.quant.store.export(params.get("id", [""])[0], params.get("format", ["json"])[0])
-                    self.send(200, body, mime)
-                elif parsed.path == "/api/reviews/report":
-                    self.send(200, workbench.reviews.store.read(params.get("id", [""])[0]))
-                elif parsed.path == "/api/reviews/artifact":
-                    name = params.get("name", [""])[0]
-                    body = workbench.reviews.store.artifact(params.get("id", [""])[0], name)
-                    mime = {"svg": "image/svg+xml", "png": "image/png", "zip": "application/zip", "json": "application/json; charset=utf-8", "txt": "text/plain; charset=utf-8"}.get(name.rsplit(".", 1)[-1], "application/octet-stream")
-                    self.send(200, body, mime)
-                elif parsed.path == "/assets/review-room-v1.png":
-                    self.send(200, (ROOT / "static" / "assets" / "review-room-v1.png").read_bytes(), "image/png")
-                elif parsed.path in ("/", "/index.html", "/app.js", "/review.js", "/stock.js", "/quant.js", "/sources.js", "/shortline.js", "/style.css", "/review.css", "/quant.css", "/sources.css", "/shortline.css"):
-                    filename = "index.html" if parsed.path == "/" else parsed.path[1:]
-                    mime = {"html": "text/html; charset=utf-8", "js": "text/javascript; charset=utf-8", "css": "text/css; charset=utf-8"}[filename.rsplit(".", 1)[1]]
-                    self.send(200, (ROOT / "static" / filename).read_bytes(), mime)
-                else:
-                    self.send(404, {"error": "页面不存在"})
-            except (ValueError, TypeError, KeyError, OSError) as error:
-                self.send(400, {"error": str(error)[:400]})
+            result = workbench.application.request("GET", self.path)
+            if result.mime == "application/json; charset=utf-8":
+                self.send(result.status, result.payload)
+            else:
+                self.send(result.status, result.payload, result.mime)
 
         def do_POST(self):
             if not self.guard(mutate=True):
@@ -188,61 +158,15 @@ def make_handler(workbench):
                 if size <= 0 or size > 80 * 1024 * 1024:
                     raise ValueError("文件为空或超过80MB")
                 payload = json.loads(self.rfile.read(size))
-                path = urlparse(self.path).path
-                if path == "/api/analyze":
-                    dataset = workbench.store.read(payload.get("mode", "active"))
-                    self.send(200, analyze(dataset, payload.get("config")))
-                elif path == "/api/sync":
-                    job = workbench.sync(payload)
-                    self.send(202, {"message": "同步已启动", "job": job})
-                elif path == "/api/stock/history":
-                    self.send(202, workbench.histories.start(payload))
-                elif path == "/api/import":
-                    dataset = payload.get("dataset", {})
-                    validate_dataset(dataset)
-                    if dataset["meta"].get("mode") != "demo":
-                        dataset["meta"]["mode"] = "import"
-                    with workbench.lock:
-                        workbench.store.save(dataset)
-                    self.send(200, {"message": "快照已通过结构与价格检查并保存"})
-                elif path == "/api/reference":
-                    dataset = workbench.store.read(payload.get("mode", "active"))
-                    if dataset["meta"].get("mode") == "demo":
-                        raise ValueError("演示数据不能进行真实行情核对，请先同步或导入真实快照")
-                    dataset, count = attach_reference(dataset, payload)
-                    with workbench.lock:
-                        workbench.store.save(dataset)
-                    self.send(200, {"message": f"已核对{count}只证券的同日收盘价"})
-                elif path == "/api/reviews/generate":
-                    self.send(202, workbench.reviews.start(payload))
-                elif path == "/api/reviews/settings":
-                    self.send(200, workbench.reviews.store.update_settings(payload))
-                elif path == "/api/reviews/title":
-                    self.send(200, workbench.reviews.store.choose_title(payload.get('id'), payload.get('index')))
-                elif path == "/api/sources/settings":
-                    self.send(200, workbench.sources.settings(payload))
-                elif path == "/api/sources/test":
-                    self.send(202, workbench.sources.start(payload))
-                elif path == "/api/quant/strategy":
-                    self.send(200, workbench.quant.store.save_strategy(payload))
-                elif path == "/api/quant/stocks/resolve":
-                    self.send(200, workbench.quant.stock_choices(payload.get("mode","active"), values=payload.get("codes",[])))
-                elif path == "/api/quant/stocks/check":
-                    self.send(200, workbench.quant.check_stocks(payload))
-                elif path == "/api/quant/run":
-                    self.send(202, workbench.quant.start(payload))
-                elif path == "/api/quant/replay":
-                    if not payload.get("id"):
-                        raise ValueError("请选择需要复现的运行记录")
-                    self.send(202, workbench.quant.start({}, replay_id=payload.get("id")))
-                elif path == "/api/quant/cancel":
-                    self.send(200, workbench.quant.cancel_run())
+                if not isinstance(payload, dict):
+                    raise ValueError("请求内容必须为对象")
+                result = workbench.application.request("POST", self.path, payload)
+                if result.mime == "application/json; charset=utf-8":
+                    self.send(result.status, result.payload)
                 else:
-                    self.send(404, {"error": "接口不存在"})
+                    self.send(result.status, result.payload, result.mime)
             except (ValueError, TypeError, KeyError, OverflowError) as error:
                 self.send(400, {"error": str(error)[:400]})
-            except Exception:
-                self.send(500, {"error": "内部处理失败，原始快照未主动替换；请检查文件格式或重启服务"})
 
     return Handler
 
@@ -251,8 +175,10 @@ def main():
     parser = argparse.ArgumentParser(description="涨势 · A股盘后研究台")
     parser.add_argument("--port", type=int, default=8766)
     parser.add_argument("--open", action="store_true")
+    parser.add_argument("--data-dir", type=Path)
     args = parser.parse_args()
-    workbench = Workbench()
+    workbench = Workbench(args.data_dir or ROOT / "data")
+    workbench.v2.startup_check()
     server = ThreadingHTTPServer(("127.0.0.1", args.port), make_handler(workbench))
     workbench.reviews.start_scheduler()
     url = f"http://127.0.0.1:{args.port}"

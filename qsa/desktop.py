@@ -11,7 +11,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 APP_TITLE = "涨势 · A股研究台"
-VERSION = "0.6.0"
+from .version import APP_VERSION as VERSION
 RESOURCES = Path(__file__).resolve().parents[1]
 
 
@@ -25,25 +25,19 @@ def data_directory(override=None):
 
 class DesktopBridge:
     def __init__(self,workbench):
-        from app import make_handler
         self._workbench=workbench
-        self._handler_type=make_handler(workbench)
+        self._application=workbench.application
         self._window=None
 
     def _dispatch(self,path,body=None):
         if not isinstance(path,str) or len(path)>4096 or not path.startswith('/api/') or urlparse(path).netloc:
             raise ValueError("无效的本机功能路径")
-        result=[]
-        handler=self._handler_type.__new__(self._handler_type)
-        handler.path=path;handler.headers={"Host":"localhost","X-Workbench-Token":self._workbench.csrf}
-        handler.send=lambda *args:result.append(args)
-        if body is None: handler.do_GET()
-        else:
+        if body is not None:
             raw=json.dumps(body,ensure_ascii=False,allow_nan=False).encode()
             if len(raw)>16*1024*1024: raise ValueError("导入内容过大")
-            handler.headers["Content-Length"]=str(len(raw));handler.rfile=io.BytesIO(raw);handler.do_POST()
-        status,payload,*mime=result[-1]
-        return status,payload,mime[0] if mime else 'application/json; charset=utf-8'
+            if not isinstance(body,dict): raise ValueError("请求内容必须为对象")
+        response=self._application.request('GET' if body is None else 'POST',path,body)
+        return response.status,response.payload,response.mime
 
     def request(self,path,body=None):
         try:

@@ -1,7 +1,7 @@
 @echo off
 cd /d "%~dp0"
-if exist "dist\Zhangshi\Zhangshi.exe" (
-  start "" "dist\Zhangshi\Zhangshi.exe"
+if exist ".runtime-env\Scripts\pythonw.exe" (
+  start "" ".runtime-env\Scripts\pythonw.exe" launch.py
 ) else (
-  ".desktop-env\Scripts\pythonw.exe" desktop.py
+  python launch.py
 )

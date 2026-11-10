@@ -12,6 +12,7 @@ function shortPlan(){
 function saveShortPlan(plan){
  const next={...shortPlans,[shortPlanKey()]:plan};
  shortPlans=next;
+ if(typeof v2SyncPlan==='function'&&window.v2SharedReady)v2SyncPlan(shortPlanKey(),plan);
  try{localStorage.setItem('after-close-short-plans',JSON.stringify(next));shortState.storageError=false;return true;}
  catch{shortState.storageError=true;toast('本机存储不可用，观察清单仅暂存在当前页面，请导出后保留。');return false;}
 }

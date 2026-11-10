@@ -11,10 +11,14 @@ import time
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parent
-if (ROOT/'.vendor').exists():sys.path.insert(0,str(ROOT/'.vendor'))
+if sys.version_info[:2] == (3,11) and (ROOT/'.vendor').exists():sys.path.insert(0,str(ROOT/'.vendor'))
 
 
 def main():
+    if '--workbench-worker' in sys.argv:
+        from scripts.workbench import main as workbench_main
+        arguments=[a for a in sys.argv[1:] if a!='--workbench-worker']
+        raise SystemExit(workbench_main(arguments))
     if '--source-worker' in sys.argv:
         from scripts.source_worker import main as worker_main
         worker_main();return
@@ -40,6 +44,7 @@ def main():
         import webview
         from app import Workbench
         workbench=Workbench(data)
+        workbench.v2.startup_check()
         bridge=DesktopBridge(workbench)
         # Keep generated HTML alongside assets, so normal relative asset paths work.
         entry=RESOURCES/'static'/'desktop.html'
@@ -69,6 +74,18 @@ def main():
                     if window.evaluate_js('Boolean(quantState.catalog && quantState.config && document.querySelector(".q-stock-picker"))'):break
                 else:raise RuntimeError('策略实验室未完成加载')
                 report['quant']=True
+                for view in ('workbench','portfolio','tasks'):
+                    window.evaluate_js('location.hash='+json.dumps(view))
+                    for _ in range(120):
+                        time.sleep(.2)
+                        if window.evaluate_js('typeof v2State!=="undefined" && state.view==='+json.dumps(view)+' && v2State.view==='+json.dumps(view)+' && !v2State.loading && Boolean(v2State.health)'):
+                            break
+                    else:raise RuntimeError(view+'页面未完成加载')
+                    error=window.evaluate_js('v2State.error')
+                    if error:raise RuntimeError(view+'页面错误：'+str(error))
+                    report[view]=True
+                report['v2_version']=window.evaluate_js('v2State.health.version')
+                report['data_directory']=str(data)
             except Exception as error:report={'ok':False,'error':str(error)};logging.exception('Desktop self-test')
             finally:
                 Path(args.self_test).write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8')

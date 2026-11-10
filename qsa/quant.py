@@ -8,6 +8,7 @@ from collections import Counter
 
 from .analytics import analyze
 from .data import iso_date
+from .features import adjusted_series, preceding_volume_mean
 
 ENGINE_VERSION = "1.0.0"
 DEFAULTS = {
@@ -91,9 +92,9 @@ def features(bars, cfg):
     if any(not b.get("adj_factor") for b in tail):
         return None, "复权因子缺失"
     anchor = bars[-1]["adj_factor"]
-    closes = [b["close"]*b["adj_factor"]/anchor for b in tail]
+    closes = adjusted_series(tail, anchor=anchor)
     current = bars[-1]
-    volume_base = sum(b["volume_shares"] for b in bars[-21:-1])/20
+    volume_base = preceding_volume_mean(bars)
     if not volume_base or current.get("turnover_rate") is None:
         return None, "量能或换手率缺失"
     ma = {n:sum(closes[-n:])/n for n in (5,10,20)}

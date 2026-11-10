@@ -3,6 +3,7 @@ from __future__ import annotations
 import math
 import statistics
 from datetime import date
+from .features import adjusted_series
 
 DEFAULTS = {"style": "balanced", "sector_type": "industry", "min_amount": 300000000, "min_turnover": 2, "max_turnover": 30, "min_score": 60, "min_sector_score": 40, "include_one_word": False}
 WEIGHTS = {
@@ -61,7 +62,7 @@ def indicators(bars):
     if any(b.get("adj_factor") is None for b in bars):
         return result
     anchor = bars[-1]["adj_factor"]
-    closes = [b["close"] * b["adj_factor"] / anchor for b in bars]
+    closes = adjusted_series(bars, anchor=anchor)
     for span in (5, 10, 20):
         if len(closes) >= span:
             result[f"ma{span}"] = mean(closes[-span:])
@@ -337,7 +338,7 @@ def analyze(dataset, options=None):
         narrative.append("板块关键数据不足，暂不输出可比排名和选股结果。")
     if quality["single_source"]:
         narrative.append("当前存在单源行情；可导入同日参考收盘价进行核对。")
-    return {"meta": dataset["meta"], "config": config, "weights": weights, "market": market, "provider_sector_ranking": dataset.get("provider_sector_ranking", []), "sector_leaders": daily_sector_leaders(dataset, sectors, config["sector_type"]), "sectors": sectors, "stocks": rows, "candidates": [r["code"] for r in candidates], "quality": quality, "narrative": narrative, "methodology": {"version": "1.0.0", "sector": "35×截断((等权涨幅+3)/8) + 35×上涨比例 + 30×截断(涨停比例/12%)，截断范围0～1；可比成交额倍数仅作补充", "price": "50%收盘在日内区间的位置 + 50%同交易板块涨幅分位", "volume": "截断((今日量/前20根均量−0.5)/1.5)；超过5倍另扣8分", "trend": "收盘高于复权MA5/10/20及突破前20根复权最高价，各占25%", "status": "70%×截断(确认连板数/4) + 30%同交易板块5日动量分位", "missing": "缺少关键指标不归一化、不加分；板块不可比较时不排名", "scope": "排除ST/退市风险名称；板块分类分开展示；题材重叠不累加为全市场股票数", "notes": ["涨停以供应商涨停榜或实际涨停价确认，禁止用涨幅阈值替代", "量比为日线成交量相对前20根均量，不是行情终端的分时量比", "暂无独立公告搜索、筹码分布与真实资金身份判断", "当前未提供策略回测、收益预测或自动交易"]}}
+    return {"meta": dataset["meta"], "config": config, "weights": weights, "market": market, "provider_sector_ranking": dataset.get("provider_sector_ranking", []), "sector_leaders": daily_sector_leaders(dataset, sectors, config["sector_type"]), "sectors": sectors, "stocks": rows, "candidates": [r["code"] for r in candidates], "quality": quality, "narrative": narrative, "methodology": {"version": "1.0.0", "sector": "35×截断((等权涨幅+3)/8) + 35×上涨比例 + 30×截断(涨停比例/12%)，截断范围0～1；可比成交额倍数仅作补充", "price": "50%收盘在日内区间的位置 + 50%同交易板块涨幅分位", "volume": "截断((今日量/前20根均量−0.5)/1.5)；超过5倍另扣8分", "trend": "收盘高于复权MA5/10/20及突破前20根复权最高价，各占25%", "status": "70%×截断(确认连板数/4) + 30%同交易板块5日动量分位", "missing": "缺少关键指标不归一化、不加分；板块不可比较时不排名", "scope": "排除ST/退市风险名称；板块分类分开展示；题材重叠不累加为全市场股票数", "notes": ["涨停以供应商涨停榜或实际涨停价确认，禁止用涨幅阈值替代", "量比为日线成交量相对前20根均量，不是行情终端的分时量比", "暂无独立公告搜索、筹码分布与真实资金身份判断", "策略实验室提供受限样本回放；完整历史回测取决于时点数据，不提供收益预测或自动交易"]}}
 
 
 def stock_detail(dataset, code):

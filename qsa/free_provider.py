@@ -80,6 +80,17 @@ def share_volume(raw_volume, amount, low, high):
     return choices[0]
 
 
+def normalization_record(raw_volume, raw_amount, volume, amount):
+    """Keep numerical conversion evidence beside standardized observations."""
+    multiplier = volume / raw_volume
+    return {"price_unit": "CNY", "price_multiplier": 1, "turnover_unit": "percent",
+        "volume": {"raw_value": raw_volume, "raw_unit": "hand" if abs(multiplier-100)<1e-8 else "share",
+            "standard_value": volume, "standard_unit": "share", "multiplier": multiplier,
+            "basis": "成交额/成交量落在当日高低价内，排除歧义换算"},
+        "amount": {"raw_value": raw_amount, "raw_unit": "10000_CNY" if abs(amount/raw_amount-10000)<1e-8 else "CNY",
+            "standard_value": amount, "standard_unit": "CNY", "multiplier": amount/raw_amount}}
+
+
 def tencent_quotes(codes, day, evidence):
     output = {}
     for offset in range(0, len(codes), 100):
@@ -109,6 +120,7 @@ def tencent_quotes(codes, day, evidence):
                     continue
                 volume = share_volume(float(summary[1]), amount, low, high)
                 output[code] = {"name": fields[1], "stamp": stamp.isoformat(), "bar": {"date": day, "open": opening, "high": high, "low": low, "close": close, "pre_close": previous, "pct_chg": float(fields[32]), "volume_shares": volume, "amount_yuan": amount, "turnover_rate": number(fields[38]), "up_limit": number(fields[47]) if number(fields[47]) and float(fields[47]) > close * .5 else None, "down_limit": number(fields[48]) if number(fields[48]) and float(fields[48]) > 0 else None, "adj_factor": None}}
+                output[code]["bar"]["normalization"] = normalization_record(float(summary[1]), float(summary[2]), volume, amount)
             except (ValueError, IndexError, ZeroDivisionError):
                 continue
         time.sleep(.1)
@@ -177,7 +189,7 @@ def fetch_eastmoney(options, root, progress):
         raise ValueError(f"当前免费接口的最新收盘日为{stamp[:8]}，不能把当前成分回填成历史行情；历史复盘请导入当日保存的快照")
     industry_limit, theme_limit = int(options.get("industry_limit", 12)), int(options.get("theme_limit", 8))
     history_limit = int(options.get("history_limit", 120))
-    if not 1 <= industry_limit <= 100 or not 0 <= theme_limit <= 30 or not 1 <= history_limit <= 500:
+    if not 1 <= industry_limit <= 100 or not 0 <= theme_limit <= 1000 or not 0 <= history_limit <= 500:
         raise ValueError("板块数量超出范围")
     root = Path(root)
     evidence = root / "evidence" / f"{day}-{now.strftime('%H%M%S%f')}"
@@ -385,7 +397,7 @@ def fetch_sina(options, root, progress, fallback_reason):
         raise ValueError("目标日期不是免费当前接口可核验的最新收盘日；历史复盘请导入当日快照")
     industry_limit, theme_limit = int(options.get("industry_limit", 12)), int(options.get("theme_limit", 8))
     history_limit = int(options.get("history_limit", 120))
-    if not 1 <= industry_limit <= 100 or not 0 <= theme_limit <= 30 or not 1 <= history_limit <= 500:
+    if not 1 <= industry_limit <= 100 or not 0 <= theme_limit <= 1000 or not 0 <= history_limit <= 500:
         raise ValueError("板块或历史补齐数量超出范围")
     root = Path(root)
     evidence = root / "evidence" / f"sina-{day}-{now.strftime('%H%M%S%f')}"

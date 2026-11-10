@@ -25,7 +25,8 @@ class DesktopTests(unittest.TestCase):
         with patch('socket.socket',side_effect=AssertionError('desktop must not listen or connect to a local server')):
             r=self.bridge.request('/api/status')
             self.assertEqual(r['status'],200);self.assertTrue(r['data']['desktop'])
-            self.assertEqual(r['data']['version'],'0.6.0')
+            from qsa.version import APP_VERSION
+            self.assertEqual(r['data']['version'],APP_VERSION)
             checked=self.bridge.request('/api/quant/stocks/check',{'mode':'demo','codes':['DEMO001'],'start':'2026-09-01','end':'2026-10-22'})
         self.assertEqual(checked['data']['ready'],1)
 

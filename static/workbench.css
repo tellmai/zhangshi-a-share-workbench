@@ -1,0 +1,53 @@
+.sidebar #navigation{overflow-y:auto;min-height:0}
+.v2-page{display:grid;gap:20px;max-width:1500px;margin:auto}
+.v2-page .panel{padding:24px}
+.v2-heading,.v2-actions,.v2-tabs,.v2-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.v2-heading{justify-content:space-between;margin-bottom:16px}
+.v2-heading h2,.v2-heading p{margin:0}
+.v2-heading p{color:#667d81;margin-top:5px;font-size:13px;line-height:1.6}
+.v2-actions .button{white-space:nowrap}
+.v2-tabs{border-bottom:1px solid #dce6e5;padding-bottom:12px}
+.v2-tabs button{border:0;background:transparent;padding:9px 16px;border-radius:8px;cursor:pointer;color:#63777b}
+.v2-tabs button.active{color:#0c6655;background:#e3f4ee;font-weight:700}
+.v2-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.v2-two{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.v2-card{border:1px solid #dde7e5;border-radius:12px;padding:20px;background:white;display:grid;gap:12px}
+.v2-card h3{font-size:18px;margin:0}
+.v2-card p{font-size:13px;line-height:1.7;margin:0;color:#526c72}
+.v2-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.v2-metric{background:#f3f7f6;border:1px solid #e1eae7;border-radius:10px;padding:15px}
+.v2-metric small{display:block;color:#60797e;margin-bottom:6px}
+.v2-metric b{font-size:23px;color:#183c44;overflow-wrap:anywhere}
+.v2-badge{display:inline-flex;align-items:center;border-radius:5px;padding:4px 8px;font-size:11px;font-weight:650;background:#edf1f2;color:#405e65;max-width:100%;overflow-wrap:anywhere}
+.v2-badge.READY,.v2-badge.completed{background:#ddf2e9;color:#126b4b}
+.v2-badge.PARTIAL,.v2-badge.RESEARCH_ONLY,.v2-badge.UNCERTAIN{background:#fff0d7;color:#805c23}
+.v2-badge.BLOCKED,.v2-badge.failed,.v2-badge.incomplete{background:#fde9e6;color:#994337}
+.v2-notice{background:#f1f6f5;border:1px solid #dce6e3;border-radius:9px;padding:14px 17px;line-height:1.8;font-size:13px;color:#49666d;overflow-wrap:anywhere}
+.v2-notice.error{background:#fff0eb;border-color:#efc6bb;color:#934332}
+.v2-list{padding-left:20px;margin:6px 0;font-size:13px;line-height:1.9;color:#526a71}
+.v2-table-wrap{overflow:auto;max-width:100%}
+.v2-table{width:100%;border-collapse:collapse;font-size:12px;white-space:nowrap}
+.v2-table th{font-size:11px;font-weight:650;color:#698085;background:#f4f7f6;text-align:left}
+.v2-table td,.v2-table th{padding:12px 10px;border-bottom:1px solid #e6edeb}
+.v2-table .v2-wrap{white-space:normal;min-width:160px;max-width:360px;overflow-wrap:anywhere;line-height:1.65}
+.v2-form{display:grid;gap:14px}
+.v2-form-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.v2-form label{display:grid;gap:7px;font-size:12px;color:#4e6b72}
+.v2-form input,.v2-form select,.v2-form textarea,.v2-row input,.v2-row select{width:100%;min-width:0;border:1px solid #cdded9;border-radius:7px;background:white;color:#183c44;padding:10px 11px;font:inherit}
+.v2-form textarea{min-height:125px;resize:vertical;font-size:12px;line-height:1.7}
+.v2-form input[type=checkbox]{width:auto}
+.v2-form .v2-check{display:flex;align-items:center;gap:8px}
+.v2-code{font-family:Consolas,monospace;font-size:11px;overflow-wrap:anywhere}
+.v2-muted{color:#70858a;font-size:12px;line-height:1.7}
+.v2-progress{height:5px;background:#e8efed;border-radius:4px;overflow:hidden;margin:8px 0}
+.v2-progress span{display:block;height:100%;background:#279e7d}
+.v2-dialog{width:min(760px,92vw);max-height:88vh;overflow:auto;border:1px solid #d9e6e1;border-radius:14px;padding:28px;color:#193d44}
+.v2-dialog::backdrop{background:#112c3c88}
+.v2-dialog h3{margin:20px 0 8px}
+.v2-dialog .v2-list{margin-bottom:15px}
+.v2-chart{width:100%;height:180px;display:block;background:#f5f9f7;border-radius:10px}
+.v2-empty{padding:32px;text-align:center;color:#72868a;border:1px dashed #cfded9;border-radius:10px;line-height:1.8}
+.v2-page details>summary{cursor:pointer;color:#315c63;font-size:14px;font-weight:650;padding:8px 0}
+.v2-page details[open]>summary{margin-bottom:14px}
+@media(max-width:1200px){.v2-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.v2-two{grid-template-columns:1fr}.v2-form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:750px){.v2-grid,.v2-form-grid{grid-template-columns:1fr}.v2-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.v2-page .panel{padding:17px}}

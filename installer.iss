@@ -1,7 +1,7 @@
 [Setup]
 AppId={{9BB195C8-3F39-4EF1-9B9E-417A432B7841}
 AppName=涨势 · A股研究台
-AppVersion=0.6.0
+AppVersion=1.0.0
 AppPublisher=涨势研究台
 DefaultDirName={localappdata}\Programs\Zhangshi
 DefaultGroupName=涨势研究台
@@ -9,7 +9,7 @@ PrivilegesRequired=lowest
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 OutputDir=release
-OutputBaseFilename=Zhangshi-Setup-0.6.0-x64
+OutputBaseFilename=Zhangshi-Setup-1.0.0-x64
 SetupIconFile=static\assets\app.ico
 UninstallDisplayIcon={app}\Zhangshi.exe
 Compression=lzma2/fast
@@ -26,8 +26,8 @@ Name: "chinesesimp"; MessagesFile: "packaging\ChineseSimplified.isl"
 Name: "desktopicon"; Description: "创建桌面快捷方式"; GroupDescription: "快捷方式："
 
 [Files]
-Source: "dist\Zhangshi\*"; DestDir: "{app}"; Excludes: "data\*,portable.flag"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "dist\Zhangshi\data\*"; DestDir: "{localappdata}\Zhangshi\data"; Excludes: "desktop-profile\*,*.log,*.tmp"; Flags: ignoreversion recursesubdirs createallsubdirs uninsneveruninstall; Check: SeedData
+Source: "dist\v1.0.0\Zhangshi\*"; DestDir: "{app}"; Excludes: "data\*,portable.flag"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "dist\v1.0.0\Zhangshi\data\*"; DestDir: "{localappdata}\Zhangshi\data"; Excludes: "desktop-profile\*,*.log,*.tmp"; Flags: ignoreversion recursesubdirs createallsubdirs uninsneveruninstall; Check: SeedData
 
 [Icons]
 Name: "{group}\涨势研究台"; Filename: "{app}\Zhangshi.exe"; WorkingDir: "{app}"

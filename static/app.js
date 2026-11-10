@@ -25,7 +25,7 @@ const iconPaths = {
  experiment:'<path d="M9 3h6M10 3v6l-6 10a1.3 1.3 0 0 0 1 2h14a1.3 1.3 0 0 0 1-2L14 9V3M8 14h8"/><path d="M9 18h2m3 0h1"/>'
 };
 const icon = (name, size=18) => `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${iconPaths[name]||iconPaths.chart}</svg>`;
-const navs = [['overview','盘后总览','grid'],['shortline','短线复盘','clock'],['stocks','强势股精选','chart'],['sectors','板块雷达','radar'],['ladder','情绪梯队','layers'],['quant','策略实验室','experiment'],['review','抖音复盘','spark'],['data','数据与规则','data']];
+const navs = [['overview','盘后总览','grid'],['workbench','主线龙头工作台','radar'],['shortline','短线复盘','clock'],['stocks','强势股精选','chart'],['sectors','板块雷达','radar'],['ladder','情绪梯队','layers'],['quant','策略实验室','experiment'],['portfolio','持仓与复盘','shield'],['tasks','任务与数据','clock'],['review','抖音复盘','spark'],['data','数据与规则','data']];
 const styles = [['balanced','综合共振'],['relay','连板接力'],['trend','趋势短线']];
 let saved = [];
 try { saved = JSON.parse(localStorage.getItem('after-close-watch')||'[]'); if(!Array.isArray(saved)) saved=[]; } catch {}
@@ -34,13 +34,13 @@ let toastTimer, pollTimer, syncClockTimer, lastFocus;
 Object.assign(state,{syncStarting:false,syncPolling:false,syncConnectionError:null,syncDismissed:null,syncHandled:null});
 
 function toast(message) { $('#toast').textContent=message; $('#toast').classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>$('#toast').classList.remove('show'),4300); }
-async function api(path, body) { if(window.__ZHANGSHI_DESKTOP__){await window.desktopReady;const r=await window.pywebview.api.request(path,body===undefined?null:body);if(r.status>=400)throw new Error(r.data?.error||'操作失败');return r.data;}const response=await fetch(path, body===undefined?{}:{method:'POST',headers:{'Content-Type':'application/json','X-Workbench-Token':state.status?.csrf||''},body:JSON.stringify(body)}); const result=await response.json(); if(!response.ok) throw new Error(result.error||'请求失败'); return result; }
+async function api(path, body) { if(window.__ZHANGSHI_DESKTOP__){await window.desktopReady;const r=await window.pywebview.api.request(path,body===undefined?null:body);if(r.status>=400)throw new Error(r.data?.error?.message||r.data?.error||'操作失败');return r.data;}const response=await fetch(path, body===undefined?{}:{method:'POST',headers:{'Content-Type':'application/json','X-Workbench-Token':state.status?.csrf||''},body:JSON.stringify(body)}); const result=await response.json(); if(!response.ok) throw new Error(result.error?.message||result.error||'请求失败'); return result; }
 function empty(title, note='可调整筛选门槛，或在“数据与规则”中查看数据缺失项。') { return `<div class="empty-state">${icon('empty')}<b>${esc(title)}</b>${esc(note)}</div>`; }
 function safeURL(url){try{const u=new URL(url);return u.protocol==='https:'?esc(u.href):'#';}catch{return '#';}}
 function navigate(view) { location.hash=view; }
 function watchKey(code) { return `${state.analysis.meta.mode==='demo'?'demo':'real'}:${code}`; }
 function isSaved(code) { return state.saved.includes(watchKey(code)); }
-function toggleWatch(code) { const key=watchKey(code); state.saved=state.saved.includes(key)?state.saved.filter(x=>x!==key):[...state.saved,key]; localStorage.setItem('after-close-watch',JSON.stringify(state.saved)); if(state.view==='shortline')render();else renderTable(); const b=$('#stock-drawer [data-watch]'); if(b){b.textContent=isSaved(code)?'已加入自选':'加入本机自选';} }
+function toggleWatch(code) { const key=watchKey(code); state.saved=state.saved.includes(key)?state.saved.filter(x=>x!==key):[...state.saved,key]; localStorage.setItem('after-close-watch',JSON.stringify(state.saved)); if(typeof v2SyncWatch==='function'&&window.v2SharedReady)v2SyncWatch(key,state.saved.includes(key)); if(state.view==='shortline')render();else renderTable(); const b=$('#stock-drawer [data-watch]'); if(b){b.textContent=isSaved(code)?'已加入自选':'加入本机自选';} }
 
 function analysisFeedback(message, kind='success') {
  state.feedback={message,kind};
@@ -96,6 +96,9 @@ function render() {
  names.review=['让收盘复盘，有据也有序。','从真实行情到抖音文稿，保留每个结论背后的证据。'];
  names.quant=['设计策略，再用数据检验。','从一个明确的交易想法开始，运行、复盘、迭代，逐步理解量化。'];
  names.shortline=['先读情绪，再找强势。','收盘看市场与主线，把次日要观察的股票和条件留下来。'];
+ names.workbench=['主线与龙头，每一步有依据。','按历史时点保存研究结果，查看持续性、失效条件与风险预算。'];
+ names.portfolio=['记录实际成交，核对执行偏差。','真实账本与影子账户独立，保留每次更正、费用和退出计划。'];
+ names.tasks=['让数据积累，持续而可追溯。','管理独立后台任务、原始证据、质量、备份和恢复点。'];
  names.stocks=['找到强势股，留下观察重点。','先过数据与流动性门槛，再看短线形态、板块共振与次日确认。'];
  $('#crumb').textContent=navs.find(n=>n[0]===state.view)[1];$('#page-title').textContent=names[state.view][0];$('#page-subtitle').textContent=names[state.view][1];
  $('#date-label').innerHTML=`${icon('calendar',13)} ${esc(a.meta.trade_date)}`;
@@ -107,19 +110,21 @@ function render() {
  $('#style-tabs').innerHTML=styles.map(([key,name])=>`<button data-style="${key}" class="${a.config.style===key?'active':''}" aria-pressed="${a.config.style===key}">${name}</button>`).join('');
  $('#scope-label').textContent=`${a.meta.mode==='demo'?'虚构样本':a.meta.sector_universe_complete===false?'已展开板块研究范围':'当前行情样本'} · ${m.active_count}只有效证券`;
  $('#filter-button').innerHTML=`${icon('filter')} 筛选规则`;
- $('.control-bar').hidden=['review','quant'].includes(state.view);
- if(['review','quant'].includes(state.view)){$('#filter-panel').hidden=true;$('#analysis-feedback').hidden=true;}
+ $('.control-bar').hidden=['review','quant','workbench','portfolio','tasks'].includes(state.view);
+ if(['review','quant','workbench','portfolio','tasks'].includes(state.view)){$('#filter-panel').hidden=true;$('#analysis-feedback').hidden=true;}
  renderFilters();
  const views={overview:overviewView,sectors:sectorsView,stocks:stocksView,ladder:ladderView,data:dataView};
  if(typeof shortlineView==='function')views.shortline=shortlineView;
  if(typeof reviewView==='function')views.review=reviewView;
  if(typeof quantView==='function')views.quant=quantView;
+ if(typeof workbenchView==='function'){views.workbench=workbenchView;views.portfolio=portfolioV2View;views.tasks=tasksV2View;}
  $('#content').innerHTML=views[state.view]();
  renderTable();analysisBusy(state.loading);requestAnimationFrame(drawAll);
  if(state.view==='review'&&typeof ensureReviewLoaded==='function')ensureReviewLoaded();
  if(state.view==='quant'&&typeof ensureQuantLoaded==='function')ensureQuantLoaded();
  if(state.view==='data'&&typeof ensureSourcesLoaded==='function')ensureSourcesLoaded();
  if(['shortline','stocks'].includes(state.view)&&typeof paintShortline==='function')paintShortline();
+ if(['workbench','portfolio','tasks'].includes(state.view)&&typeof ensureV2Loaded==='function')ensureV2Loaded();
 }
 function renderFilters(){const c=state.analysis.config;$('#filter-panel').innerHTML=`<label>最低成交额（亿元）<input id="f-amount" type="number" min="0" max="10000" step="0.5" value="${c.min_amount/1e8}"></label><label>换手率下限（%）<input id="f-min-turn" type="number" min="0" max="100" value="${c.min_turnover}"></label><label>换手率上限（%）<input id="f-max-turn" type="number" min="0" max="100" value="${c.max_turnover}"></label><label>综合评分下限<input id="f-score" type="number" min="0" max="100" value="${c.min_score}"></label><label>板块强度下限<input id="f-sector" type="number" min="0" max="100" value="${c.min_sector_score}"></label><button class="button primary" data-action="apply-filters">应用筛选</button><label class="checkbox"><input id="f-one-word" type="checkbox" ${c.include_one_word?'checked':''}> 包含一字板观察候选</label><span class="stat-label">ST/退市名称、上市时间与关键数据质量过滤始终启用。</span>`;}
 function statCards(){const m=state.analysis.market;const bars=[12,18,14,21,20,27,23,29,22,30,25];return `<section class="stats-grid" aria-label="市场关键指标">${[

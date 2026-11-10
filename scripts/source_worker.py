@@ -9,7 +9,7 @@ from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT))
-if (ROOT/'.vendor').exists():sys.path.insert(0,str(ROOT/'.vendor'))
+if sys.version_info[:2] == (3,11) and (ROOT/'.vendor').exists():sys.path.insert(0,str(ROOT/'.vendor'))
 
 
 def baostock_history(code,day):
@@ -65,6 +65,18 @@ def work(task):
         if result not in (0,-201):raise ValueError('iFinD登录未成功，返回码 '+str(result))
         if result==0:sdk.THS_iFinDLogout()
         return {'message':'官方SDK登录成功；未测试具体行情权限，未接入主行情。'+('沿用既有登录，未登出。' if result==-201 else '本次检测会话已登出。'),'login_code':result,'scope':'仅身份验证，不表示数据权限已开通'}
+    if provider=='baostock' and action=='calendar':
+        import baostock as bs
+        login=bs.login()
+        if login.error_code!='0':raise ValueError('BaoStock日历登录失败：'+str(login.error_code))
+        try:
+            result=bs.query_trade_dates(start_date=task['start'],end_date=task['end'])
+            if result.error_code!='0':raise ValueError('BaoStock日历查询失败：'+str(result.error_code))
+            rows=[]
+            while result.next():rows.append(dict(zip(result.fields,result.get_row_data())))
+            return {'rows':rows,'sessions':[r['calendar_date'] for r in rows if r['is_trading_day']=='1'],
+                'source':'BaoStock交易日历','start':task['start'],'end':task['end']}
+        finally:bs.logout()
     if provider in ('baostock','akshare'):
         return baostock_history(code,day) if provider=='baostock' else akshare_history(code,day)
     if provider=='ths':

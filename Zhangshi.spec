@@ -2,15 +2,15 @@
 from pathlib import Path
 import sys
 project=Path(SPECPATH)
-sys.path.insert(0,str(project/'.vendor'))
+if sys.version_info[:2] == (3,11):sys.path.insert(0,str(project/'.vendor'))
 from PyInstaller.utils.hooks import collect_all
-datas=[(str(project/'static'),'static')]
+datas=[(str(project/'static'),'static'),(str(project/'build'/'build-info.json'),'.')]
 binaries=[]
-hidden=['webview.platforms.winforms','webview.platforms.edgechromium','scripts.source_worker']
-for package in ('webview','akshare','baostock','tzdata'):
+hidden=['webview.platforms.winforms','webview.platforms.edgechromium','scripts.source_worker','scripts.workbench','_duckdb','pydantic_core._pydantic_core','yaml._yaml']
+for package in ('webview','akshare','baostock','tzdata','duckdb','pydantic','pydantic_core','yaml','pytz'):
     d,b,h=collect_all(package)
     datas+=d;binaries+=b;hidden+=h
-a=Analysis(['desktop.py'],pathex=[str(project),str(project/'.vendor')],binaries=binaries,
+a=Analysis(['desktop.py'],pathex=[str(project)],binaries=binaries,
     datas=datas,hiddenimports=hidden,hookspath=[],hooksconfig={},runtime_hooks=[],
     excludes=['PyQt5','PyQt6','PySide2','PySide6','matplotlib','IPython','pytest'],noarchive=False)
 pyz=PYZ(a.pure)
