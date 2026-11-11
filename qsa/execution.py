@@ -40,6 +40,7 @@ def review(repository, ledger, portfolio):
         elif not reference_account: status = "ACCOUNT_ONLY"
         elif not a["qty"]: status = "NO_ACTUAL_RECORD"
         elif not s["qty"]: status = "NO_SHADOW_RECORD"
+        elif a["notional"] <= 0 or s["notional"] <= 0: status = "INVALID_PRICE_EVIDENCE"
         elif len(a["dates"]) != 1 or a["dates"] != s["dates"]: status = "DIFFERENT_EXECUTION_DATE"
         comparable = status == "COMPARABLE"
         direction = 1 if side == "buy" else -1

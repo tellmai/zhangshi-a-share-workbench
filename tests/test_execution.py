@@ -98,5 +98,13 @@ class ExecutionReviewTests(unittest.TestCase):
         self.assertIsNone(r["reference_account"])
         self.assertEqual(r["rows"][0]["status"],"ACCOUNT_ONLY")
 
+    def test_sub_cent_erroneous_csv_prices_do_not_break_account_review(self):
+        self.signal()
+        self.trade("manual","buy",.001,"2026-10-21",qty=1)
+        self.trade("shadow","buy",.001,"2026-10-21",qty=1)
+        row=self.result()["rows"][0]
+        self.assertEqual(row["status"],"INVALID_PRICE_EVIDENCE")
+        self.assertIsNone(row["adverse_price_bps"])
+
 
 if __name__=="__main__":unittest.main()
