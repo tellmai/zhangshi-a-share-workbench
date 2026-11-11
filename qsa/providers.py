@@ -81,6 +81,8 @@ class FreeProvider:
         policy = {"date": day, "industry_limit": 100, "theme_limit": 30, "history_limit": 0, **(options or {})}
         policy["history_limit"] = 0
         raw = fetch_free(policy, self.repo.root, progress)
+        raw["meta"]["security_master_complete"] = raw["meta"].get("complete") is True
+        raw["meta"]["security_master_known_at"] = utc_now()
         raw["meta"]["history_sampling"] = "disabled; separate neutral symbol queue"
         raw["meta"].setdefault("notes", []).append("V2基础采集不按涨幅补齐历史；证券代码队列独立积累历史")
         value = normalize(raw, observed=True)

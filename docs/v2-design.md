@@ -59,7 +59,7 @@ flowchart TD
 
 ProviderResult用supported、delayed、unavailable、permission_denied表达能力或失败，不能用空列表代替错误。当前免费适配器支持基础报价、区间日线和经核验的交易日历；分钟、盘口、完整公司行为仍声明unavailable。日历失败可导入带来源的核验JSON。
 
-质量分功能判断。READY表示当前研究输入齐全；PARTIAL展示样本和缺失；BLOCKED停止相应计算。市场环境、严格回测、公告过滤分别有能力位。日历还须有calendar_known_at且早于决策时点，缺失或晚到时不能用于严格回放、连续性确认或信号到期时间。参考收盘一致仅说明close字段，不证明全部行情或来源独立。证券数量、当日有效报价、已知停牌无报价、历史覆盖等分别保存分母。
+质量分功能判断。READY表示当前研究输入齐全；PARTIAL展示样本和缺失；BLOCKED停止相应计算。市场环境、严格回测、公告过滤分别有能力位。日历还须有calendar_known_at且早于决策时点，缺失或晚到时不能用于严格回放、连续性确认或信号到期时间。严格回放另要求security_master_complete为true，且security_master_known_at不晚于决策时点；报价齐全不能替代历史股票池证据。参考收盘一致仅说明close字段，不证明全部行情或来源独立。证券数量、当日有效报价、已知停牌无报价、历史覆盖等分别保存分母。
 
 ## 主线、角色和策略
 

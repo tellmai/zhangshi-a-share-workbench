@@ -60,13 +60,17 @@ def legacy_view(dataset):
     return value
 
 
-def calendar_visible(meta, at=None):
-    if not meta.get("calendar_verified") or not meta.get("calendar_known_at"):
+def declaration_visible(meta, flag, known_at, at=None):
+    if meta.get(flag) is not True or not meta.get(known_at):
         return False
     try:
-        return timestamp(meta["calendar_known_at"]) <= timestamp(at or utc_now())
+        return timestamp(meta[known_at]) <= timestamp(at or utc_now())
     except (ValueError, TypeError):
         return False
+
+
+def calendar_visible(meta, at=None):
+    return declaration_visible(meta, "calendar_verified", "calendar_known_at", at)
 
 
 def assess(dataset, boards=("MAIN", "CHINEXT"), decision_time=None):
@@ -105,6 +109,7 @@ def assess(dataset, boards=("MAIN", "CHINEXT"), decision_time=None):
             and (not decision_time or timestamp(s["known_at"]) <= timestamp(decision_time)) for s in states)
     complete = bool(value["meta"].get("complete")) and bool(pool) and quoted + halted == len(pool)
     calendar = calendar_visible(value["meta"], decision_time)
+    master = declaration_visible(value["meta"], "security_master_complete", "security_master_known_at", decision_time)
     sectors = value.get("sectors", [])
     members = bool(sectors) and all(s.get("complete") and s.get("known_at") for s in sectors)
     if not complete:
@@ -115,6 +120,8 @@ def assess(dataset, boards=("MAIN", "CHINEXT"), decision_time=None):
         reasons.append("部分证券缺少当日涨跌停价格")
     if not calendar:
         reasons.append("交易日历未经核验或在决策时点前不可见")
+    if not master:
+        reasons.append("缺少当时可见的完整证券股票池声明")
     if historical != len(pool):
         reasons.append("历史补齐范围不足，存在选样偏差")
     if not members:
@@ -124,13 +131,14 @@ def assess(dataset, boards=("MAIN", "CHINEXT"), decision_time=None):
     if not demo and timed != quoted:
         reasons.append("部分行情历史可见时间未知")
     market_ready = complete and calendar and known_status == len(pool) and limits == quoted and timed == quoted
-    strict = market_ready and members
+    strict = market_ready and members and master
     return {"status": "BLOCKED" if errors else "READY" if strict and historical == len(pool) and not demo else "PARTIAL",
         "reasons": errors + reasons + (["合成演示数据"] if demo else []),
         "scope": "主板与创业板研究范围" if set(boards) == {"MAIN", "CHINEXT"} else "所选研究板块",
         "coverage": {"universe": len(pool), "quoted": quoted, "quote_pct": round(100 * quoted / len(pool), 2) if pool else None,
             "limits": limits, "known_halted_without_quote": int(halted), "historical_60": int(historical), "known_status": int(known_status), "timed_quotes": int(timed), "conflicts": conflicts},
         "capabilities": {"daily_research": quoted > 0 and not errors, "market_regime": market_ready and not demo,
+            "historical_universe": master and not demo,
             "point_in_time_backtest": strict and historical == len(pool) and not demo,
             "minute_confirmation": False, "orderbook_fill": False,
             "announcement_filter": bool(value["meta"].get("announcements_complete"))},

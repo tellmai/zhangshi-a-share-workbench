@@ -265,6 +265,17 @@ class V2CoreTests(unittest.TestCase):
         self.assertTrue(report["candidates"])
         self.assertTrue(all(c["valid_until"] is None for c in report["candidates"]))
 
+    def test_complete_quotes_do_not_replace_an_asof_security_master(self):
+        sample=frames(4)
+        value=sample[0]["dataset"]
+        self.assertTrue(assess(value,decision_time=sample[0]["decision_time"])["capabilities"]["point_in_time_backtest"])
+        value["meta"].pop("security_master_known_at")
+        result=replay(sample,template="trend")
+        self.assertIsNone(result["metrics"])
+        self.assertIn("股票池",result["failure"])
+        value["meta"]["security_master_known_at"]=sample[0]["trade_date"]+"T21:00:00+08:00"
+        self.assertFalse(assess(value,decision_time=sample[0]["decision_time"])["capabilities"]["historical_universe"])
+
     def test_strict_replay_next_day_cash_and_causality(self):
         data = frames(10)
         result = replay(data, template="trend")
