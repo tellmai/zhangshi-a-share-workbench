@@ -1,0 +1,20 @@
+{
+  "status": "supported",
+  "reason": null,
+  "provider_id": "eastmoney",
+  "source_family": "东方财富",
+  "available_at": "2026-11-10T16:08:57.383784+00:00",
+  "evidence_digest": "630db7cafc96cfe9b82ef1c205e510a6ef9b01b5bfb66e568b44c145815ba999",
+  "metadata": {
+    "code": "600000.SH",
+    "historical_available_at": null,
+    "historical_limits": "unknown",
+    "warmup_bars": 17,
+    "reason": "repair",
+    "source_consistency": "single-provider-raw-and-adjusted"
+  },
+  "checked_at": "2026-11-10T16:08:57.918749+00:00",
+  "rows": 22,
+  "first": "2026-09-16",
+  "last": "2026-10-23"
+}

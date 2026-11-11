@@ -1,0 +1,483 @@
+{
+  "ok": true,
+  "platform": "Windows-11-10.0.26200-SP0",
+  "version": "1.0.0",
+  "python_runtime": "frozen Python3.12",
+  "bundle": "D:\\Study\\Codex\\QuantitativeTrading\\dist\\v1.0.0\\Zhangshi",
+  "isolated_data": "D:\\Study\\Codex\\QuantitativeTrading\\build\\package-qa\\20261111-214858211046\\data",
+  "desktop": {
+    "ok": true,
+    "desktop": true,
+    "version": "1.0.0",
+    "trade_date": "2026-10-23",
+    "stocks": 5223,
+    "nav": 11,
+    "location": "file:",
+    "quant": true,
+    "workbench": true,
+    "execution_review": true,
+    "portfolio": true,
+    "tasks": true,
+    "v2_version": "1.0.0",
+    "data_directory": "D:\\Study\\Codex\\QuantitativeTrading\\build\\package-qa\\20261111-214858211046\\data"
+  },
+  "worker_after_gui_exit": true,
+  "original_snapshot_unchanged": true,
+  "build": {
+    "code_hash": "d0ed935861e5faba238f81332ffef586734e779097d9431a1713d8003a9ab76a",
+    "git_commit": "785ced81dd6eeaab82eefb9397f50eea186b0178",
+    "files": {
+      "app.py": "e17c9630acdbc3dd0b4857212f398266eb6e0dadededae83be7bef1413c3bc17",
+      "desktop.py": "b9f695f6fea6ea21997a081c6b867e4a5b0a2ae7bb146892a8e58bafa5bde348",
+      "qsa/__init__.py": "cef74ef8cbe02ad303544a7561de074435eef8a6693594aaac00484feff76194",
+      "qsa/alerts.py": "e6f199504d73152431f1666ece5a0e6d8e117c0256be80c2942fecb985151f91",
+      "qsa/analytics.py": "d04eb4d1f24c4cc3c28fc73565f3bdc80650ce5f683a16b7054891dad1694299",
+      "qsa/application.py": "6f3a2178a70f848ef73f927fa18f36f9fce31a6493d1ba5d3d3372a9f8bc4019",
+      "qsa/archive.py": "ff4b1ab8db4d8476cbf11ed8d60e833ea92710ff5d007b8d1085adabc188d2d7",
+      "qsa/contracts.py": "b9480144c3eaec8485c207aa8ce1c92c4ddff08edb3cb734ba15c12c986506a9",
+      "qsa/data.py": "85602bbbfe92da2f55b70eccb39c14b3128fee3c04ab704830fd2d1b03db9e02",
+      "qsa/desktop.py": "09512bd3890474684aaad33749fd9b5d4fed9b161fe15768d38adae3e34206ed",
+      "qsa/execution.py": "e2df98e3276d23274e5afb5c6d6d8a6743ff96918b2bcd5b38f00fa1b577d1b2",
+      "qsa/features.py": "e6c50ff3b11154760529f42b3964922ef2b8e7776f3a41271094ef02781f2555",
+      "qsa/file_lock.py": "6519bf588d383fdde3ddec7d1dbde36569f7ef8f0b8a5c53d3f457e2fe7a3e15",
+      "qsa/free_provider.py": "a2ea2bfbf4a1d24e857bc7944ef1fc5af547638f88af342b2d9f211b2d0ca21c",
+      "qsa/jobs.py": "450a5788f3d179d314070f59405afaace78274ec737dd5a15fefb7705d307dbc",
+      "qsa/ledger.py": "3724fca91035191e1e08e87de4e0f803c65a8e0654640927c57b366f12adb916",
+      "qsa/mainline.py": "d79190b50884d18ed367a55ba959d3e658195bc738842cafaddafdf30e6f84a6",
+      "qsa/market_rules.py": "0506fea0dd6035bfbb68cf81e709766a0ea739fa8546dfdc096ccea01979a926",
+      "qsa/providers.py": "e5a09716143fade38d7f45f0c75be6bc5d94ae47a9b767f2cf0b02f3fa1665f7",
+      "qsa/quality.py": "b07bbb12643a6a842f3c5dc738fd78788b3d2b704d42ce7b095264bfb9590d45",
+      "qsa/quant.py": "60ca4cd3732feecaeb16f4522ab2f1891a76fd27f3d2d0e6000cf3534371799b",
+      "qsa/quant_service.py": "9da18500f471369991356f1a75ca22bfe4a6e2591abd4caa483dfb8b6e0a357e",
+      "qsa/quant_stocks.py": "c35be65d07f1a048fff74d547eb287a67ccde5cd43f0517bedcc2289bedbbbb1",
+      "qsa/repository.py": "6056180d6353e41ad05e940c58b1d585531d014b42466c67c08705f31969c962",
+      "qsa/review.py": "49bf556ca71df74db80d10a3c1bce3710cc8394fa3498e76e1aac8bb9fabd09a",
+      "qsa/review_service.py": "b6c18637cc460bb7d552703014b1b800c26b00510cc5e4a273822839cb7ca732",
+      "qsa/review_sources.py": "d2c1274381c0a0c90741a18ba4e644648d66029733dc0d696a364b64b2679e1c",
+      "qsa/review_titles.py": "c83211c83be53cf2ca06c2c354a781336d081668f30393de66a09b5c4de9e09e",
+      "qsa/risk.py": "62767670a50d059edc7b72c644e330185dda18ea1b2d049156a6c5cae30ec55a",
+      "qsa/router_v2.py": "44bc8d77de9eb2b888e9fcca2f9169a1f7a20450a266311ef72b66430d715c51",
+      "qsa/scheduler.py": "05fb6a08808acb4c2b94c9a165bc4cd0911713e024f5e545460b155869832487",
+      "qsa/service_v2.py": "d2cda98a9ff095b56a475d9967cdb84acde79825b37b5a0e8099f763daf922ae",
+      "qsa/source_adapters.py": "fdacfb5c169895949bfc3011d0918a24af696d6fb9f6c1d56989faae09ca1806",
+      "qsa/source_config.py": "362f26605c9e2cd9e09d2b1c0712a6b29755302e1d6c95a706320173b4378c0c",
+      "qsa/source_service.py": "fcdb8d31dd3a58b18e336454b31a3a06a630603ba8dad83cf4368d0b0e03a215",
+      "qsa/stock_history.py": "77895d7e026450e39c3d6c6bacf77cafcbabd653e4db4f2775841c429872aaaf",
+      "qsa/strict_backtest.py": "63d4512aa5e290129e639ce1c7064657b0791bfaf7e1363626730e07052619d8",
+      "qsa/version.py": "2ab79bb0b226575c06054b27a1be216ec835e5cdb5898a3374ed2c110ab6dbaa",
+      "qsa/warehouse.py": "36bf621c102f50ebf39507420805ff5bdfca3ca2483481a4e734479d8f8a71e4",
+      "qsa/windows_notify.py": "e9c278bad9a029800a4999ea1621ce671ae85eebddd64dff3ac6983176e477de",
+      "scripts/build_desktop.py": "61e2a817048ff8bd9d305162a162fa0ec435a0d983ac9889c7900838452a5115",
+      "scripts/check.py": "7fa5c274c82d998307c321d60cb99344b79fac8ef470cf882f1c92539b50fada",
+      "scripts/fill_stock_history.py": "cd0795b932ac2e3b0a5b78e0cbcfddd1db2b06c4e3e12a0047768039539e9113",
+      "scripts/generate_review.py": "197f1ca350926bf4c30dbcac6e9009237d722962685d85543c1e09e00d4ab3aa",
+      "scripts/run_quant.py": "21ff506645909fa3db96d1566791aa20f534bcfe5f354881304abd0afc86f9c4",
+      "scripts/smoke_api.py": "927acaea23cc7504e3ef8e732812cca1ed42b4af0ebf792dbd5f1dffd2de95c5",
+      "scripts/source_worker.py": "5f069e7887d1e9c3cde29f3aa5d05fe2122accbb1ae89dd92b1b2d3184525f6e",
+      "scripts/sync_data.py": "0e5c31b0caf3a5aa053664e77f17b2339823a72ca3b9c2a01bbf44c5e72087d5",
+      "scripts/test_sources.py": "d83fcc09cf8c0fdb36069b0dd162db2b09a4f63aeef13485192f895f5a1eaf3f",
+      "scripts/validate_package.py": "003dbc7b04828241edc82e6fe78a06bdfb2aa67e6e3b9d6075ccfd32550b1bc9",
+      "scripts/validate_v2.py": "f8a8f235fab1240d76a3c5dd1fc3fed69582456007c999d3193b3eb82e678b06",
+      "scripts/workbench.py": "bf418c9c114983c0a0029b48b938efba113b8e7fd9c286b1a15bcce6a54c2911"
+    }
+  },
+  "steps": [
+    {
+      "command": [
+        "status"
+      ],
+      "result": {
+        "version": "1.0.0",
+        "engine_version": "2.0.1",
+        "schema_version": 2,
+        "data_directory": "D:\\Study\\Codex\\QuantitativeTrading\\build\\package-qa\\20261111-214858211046\\data",
+        "sqlite_version": "3.53.1",
+        "dependencies": {
+          "duckdb": true,
+          "pydantic": true,
+          "yaml": true
+        },
+        "quality": {
+          "status": "PARTIAL",
+          "reasons": [
+            "研究范围报价覆盖或供应商完整性声明不足",
+            "缺少可追溯的证券状态",
+            "部分证券缺少当日涨跌停价格",
+            "交易日历未经核验或在决策时点前不可见",
+            "缺少当时可见的完整证券股票池声明",
+            "历史补齐范围不足，存在选样偏差",
+            "题材历史成分或获知时间不完整",
+            "部分行情历史可见时间未知"
+          ],
+          "scope": "主板与创业板研究范围",
+          "coverage": {
+            "universe": 4422,
+            "quoted": 4419,
+            "quote_pct": 99.93,
+            "limits": 4418,
+            "known_halted_without_quote": 0,
+            "historical_60": 103,
+            "known_status": 0,
+            "timed_quotes": 0,
+            "conflicts": 0
+          },
+          "capabilities": {
+            "daily_research": true,
+            "market_regime": false,
+            "historical_universe": false,
+            "point_in_time_backtest": false,
+            "minute_confirmation": false,
+            "orderbook_fill": false,
+            "announcement_filter": false
+          },
+          "verified_fields_note": "参考收盘一致只核对close字段，不认证其他字段或来源独立性"
+        },
+        "snapshot_date": "2026-10-23",
+        "snapshot_load_error": null,
+        "jobs": [],
+        "config": {
+          "capital": 20000.0,
+          "risk_fraction": 0.005,
+          "max_single_weight": 0.25,
+          "max_total_weight": 0.5,
+          "max_positions": 2,
+          "holding_days": 5,
+          "drawdown_review": 0.05,
+          "boards": [
+            "MAIN",
+            "CHINEXT"
+          ],
+          "commission_bps": 3.0,
+          "minimum_commission": 5.0,
+          "transfer_bps": null,
+          "slippage_bps": 5.0,
+          "fees_confirmed": false,
+          "account_confirmed": false,
+          "breadth_strong": 0.65,
+          "breadth_rotation": 0.4,
+          "limit_density": 0.025,
+          "overlap_threshold": 0.8
+        },
+        "features": {
+          "minute_confirmation": false,
+          "orderbook_fill": false,
+          "automatic_orders": false,
+          "manual_ledger": true,
+          "durable_jobs": true,
+          "parquet": true
+        },
+        "scheduler": {
+          "enabled": false
+        },
+        "startup_check": null,
+        "calendars": [],
+        "provider_capabilities": {
+          "daily_quotes": "supported",
+          "historical_range": "supported_with_coverage_check",
+          "minute": "unavailable",
+          "orderbook": "unavailable",
+          "corporate_actions": "unavailable",
+          "calendar": "unavailable"
+        }
+      }
+    },
+    {
+      "command": [
+        "migrate",
+        "--parquet"
+      ],
+      "result": {
+        "id": "c32a80d18ef57affc8172870",
+        "dedupe_key": "8ff3a3715fc13458e1a7ab4167ceb745f399a1fa2be6ae6e9d86b5bd33b04612",
+        "kind": "migrate",
+        "trade_date": "2026-11-11",
+        "state": "completed",
+        "payload": {
+          "config": {
+            "account_confirmed": false,
+            "boards": [
+              "MAIN",
+              "CHINEXT"
+            ],
+            "breadth_rotation": 0.4,
+            "breadth_strong": 0.65,
+            "capital": 20000.0,
+            "commission_bps": 3.0,
+            "drawdown_review": 0.05,
+            "fees_confirmed": false,
+            "holding_days": 5,
+            "limit_density": 0.025,
+            "max_positions": 2,
+            "max_single_weight": 0.25,
+            "max_total_weight": 0.5,
+            "minimum_commission": 5.0,
+            "overlap_threshold": 0.8,
+            "risk_fraction": 0.005,
+            "slippage_bps": 5.0,
+            "transfer_bps": null
+          },
+          "mode": "active",
+          "parquet": true,
+          "stress": false,
+          "template": "mainline_pullback",
+          "walk_forward": false
+        },
+        "progress": 100,
+        "message": "校验并保存任务产物",
+        "checkpoint": {},
+        "result": {
+          "failures": [],
+          "imported": 1,
+          "original_files_modified": false,
+          "skipped": 0
+        },
+        "error": null,
+        "created_at": "2026-11-11T13:49:21.110339+00:00",
+        "updated_at": "2026-11-11T13:49:26.445287+00:00",
+        "heartbeat": null,
+        "owner": null,
+        "cancel_requested": false,
+        "attempt": 1
+      }
+    },
+    {
+      "command": [
+        "scan"
+      ],
+      "result": {
+        "id": "9a3d4f1a65baa95afaaf8e1b",
+        "dedupe_key": "0f64f49bec4019a2428305f2db1cf6ef8ebd4bd5e9ff61583ff2b4d9aaea5b59",
+        "kind": "scan",
+        "trade_date": "2026-10-23",
+        "state": "completed",
+        "payload": {
+          "config": {
+            "account_confirmed": false,
+            "boards": [
+              "MAIN",
+              "CHINEXT"
+            ],
+            "breadth_rotation": 0.4,
+            "breadth_strong": 0.65,
+            "capital": 20000.0,
+            "commission_bps": 3.0,
+            "drawdown_review": 0.05,
+            "fees_confirmed": false,
+            "holding_days": 5,
+            "limit_density": 0.025,
+            "max_positions": 2,
+            "max_single_weight": 0.25,
+            "max_total_weight": 0.5,
+            "minimum_commission": 5.0,
+            "overlap_threshold": 0.8,
+            "risk_fraction": 0.005,
+            "slippage_bps": 5.0,
+            "transfer_bps": null
+          },
+          "history_revision": 0,
+          "mode": "active",
+          "parquet": false,
+          "snapshot_id": "00fb7629bc39ff254194e8711bff89c1b0e62695a42a2b4ef7fcb0ea28e28744",
+          "stress": false,
+          "template": "mainline_pullback",
+          "walk_forward": false
+        },
+        "progress": 100,
+        "message": "校验并保存任务产物",
+        "checkpoint": {},
+        "result": {
+          "object_id": "c396a80f94e702789026b361e2ce10def1c5d25437fd323aa3d5e122d0ac3724",
+          "quality": {
+            "capabilities": {
+              "announcement_filter": false,
+              "daily_research": true,
+              "historical_universe": false,
+              "market_regime": false,
+              "minute_confirmation": false,
+              "orderbook_fill": false,
+              "point_in_time_backtest": false
+            },
+            "coverage": {
+              "conflicts": 0,
+              "historical_60": 103,
+              "known_halted_without_quote": 0,
+              "known_status": 0,
+              "limits": 4418,
+              "quote_pct": 99.93,
+              "quoted": 4419,
+              "timed_quotes": 0,
+              "universe": 4422
+            },
+            "reasons": [
+              "研究范围报价覆盖或供应商完整性声明不足",
+              "缺少可追溯的证券状态",
+              "部分证券缺少当日涨跌停价格",
+              "交易日历未经核验或在决策时点前不可见",
+              "缺少当时可见的完整证券股票池声明",
+              "历史补齐范围不足，存在选样偏差",
+              "题材历史成分或获知时间不完整",
+              "部分行情历史可见时间未知"
+            ],
+            "scope": "主板与创业板研究范围",
+            "status": "PARTIAL",
+            "verified_fields_note": "参考收盘一致只核对close字段，不认证其他字段或来源独立性"
+          },
+          "report_id": "9a3d4f1a65baa95afaaf8e1b"
+        },
+        "error": null,
+        "created_at": "2026-11-11T13:49:29.403270+00:00",
+        "updated_at": "2026-11-11T13:49:36.469467+00:00",
+        "heartbeat": null,
+        "owner": null,
+        "cancel_requested": false,
+        "attempt": 1
+      }
+    },
+    {
+      "command": [
+        "backup"
+      ],
+      "result": {
+        "id": "f51c80f10ef056f8756b278e",
+        "dedupe_key": "47f687f45ec1e4518a8a2a40f109c16a6ceb0d01080d5996d83547acb57bf2e2",
+        "kind": "backup",
+        "trade_date": "2026-11-11",
+        "state": "completed",
+        "payload": {
+          "config": {
+            "account_confirmed": false,
+            "boards": [
+              "MAIN",
+              "CHINEXT"
+            ],
+            "breadth_rotation": 0.4,
+            "breadth_strong": 0.65,
+            "capital": 20000.0,
+            "commission_bps": 3.0,
+            "drawdown_review": 0.05,
+            "fees_confirmed": false,
+            "holding_days": 5,
+            "limit_density": 0.025,
+            "max_positions": 2,
+            "max_single_weight": 0.25,
+            "max_total_weight": 0.5,
+            "minimum_commission": 5.0,
+            "overlap_threshold": 0.8,
+            "risk_fraction": 0.005,
+            "slippage_bps": 5.0,
+            "transfer_bps": null
+          },
+          "mode": "active",
+          "parquet": false,
+          "stress": false,
+          "template": "mainline_pullback",
+          "walk_forward": false
+        },
+        "progress": 100,
+        "message": "校验并保存任务产物",
+        "checkpoint": {},
+        "result": {
+          "files": 13,
+          "id": "2026-11-11T134938.262143_0000-fab395.zip",
+          "path": "D:\\Study\\Codex\\QuantitativeTrading\\build\\package-qa\\20261111-214858211046\\data\\v2\\backups\\2026-11-11T134938.262143_0000-fab395.zip",
+          "retention": {
+            "kept": 1,
+            "removed": []
+          },
+          "sha256": "f54aa69f6e3baf5601922a0a27e075ff5aad1d74dcd952488806bf6880a4c45e",
+          "verified": true
+        },
+        "error": null,
+        "created_at": "2026-11-11T13:49:38.215758+00:00",
+        "updated_at": "2026-11-11T13:49:38.955189+00:00",
+        "heartbeat": null,
+        "owner": null,
+        "cancel_requested": false,
+        "attempt": 1
+      }
+    },
+    {
+      "command": [
+        "verify",
+        "--backup",
+        "D:\\Study\\Codex\\QuantitativeTrading\\build\\package-qa\\20261111-214858211046\\data\\v2\\backups\\2026-11-11T134938.262143_0000-fab395.zip"
+      ],
+      "result": {
+        "app_version": "1.0.0",
+        "created_at": "2026-11-11T13:49:38.262143+00:00",
+        "files": {
+          "active.json": {
+            "sha256": "104af9e3ab9c4162c8b96cd713ec8f45c7a95c2b81619a3c28d147f8e5c8b7bc",
+            "size": 8178503
+          },
+          "v2/objects/00/00fb7629bc39ff254194e8711bff89c1b0e62695a42a2b4ef7fcb0ea28e28744.json.gz": {
+            "sha256": "d0a04fd16c256a8b161d12224257baf5d5e79f5284cdf0b27321f8310e29dbd0",
+            "size": 1559548
+          },
+          "v2/objects/6b/6bc2b8c644f04f70213df7855e694ea709128f43c856a98838612d81737f48b4.json.gz": {
+            "sha256": "e86ee45e3498c9bc1580d8ab092d854cfc089dc0cf208a23034e63815d9e79ef",
+            "size": 1559564
+          },
+          "v2/objects/79/7918c23fb90c02190eb59e24964797f056e3b42fe7aba187ef707d716a10be1d.json.gz": {
+            "sha256": "e623eda4da2b98a1e4504ab5401101373c063e8661500c062ac4950c541d1072",
+            "size": 212
+          },
+          "v2/objects/c3/c396a80f94e702789026b361e2ce10def1c5d25437fd323aa3d5e122d0ac3724.json.gz": {
+            "sha256": "c5db4bd26e271fa4718287e2243e414d4d72ba2709b4004379e96536d9a3b1fb",
+            "size": 15217
+          },
+          "v2/parquet/real/2026-10-23/6bc2b8c644f04f70213df7855e694ea709128f43c856a98838612d81737f48b4-bars.parquet": {
+            "sha256": "1dae9c88d04dee1704ba1d8804bf1f07827211559fb602ea6eb3545cf05286fd",
+            "size": 914900
+          },
+          "v2/parquet/real/2026-10-23/6bc2b8c644f04f70213df7855e694ea709128f43c856a98838612d81737f48b4-calendar.parquet": {
+            "sha256": "bc351b8d47c79e2bc788ffa6050219ff8da71c076d0b10137f76da676c9d0cde",
+            "size": 1386
+          },
+          "v2/parquet/real/2026-10-23/6bc2b8c644f04f70213df7855e694ea709128f43c856a98838612d81737f48b4-limit_events.parquet": {
+            "sha256": "fe73f0660556300e3eee6edf96fe82bf464d17bdd5268dd583d5642d02df85ea",
+            "size": 3476
+          },
+          "v2/parquet/real/2026-10-23/6bc2b8c644f04f70213df7855e694ea709128f43c856a98838612d81737f48b4-memberships.parquet": {
+            "sha256": "026111c0f646f00d385e430b35c59b5327336435675401efce7f630464766021",
+            "size": 6625
+          },
+          "v2/parquet/real/2026-10-23/6bc2b8c644f04f70213df7855e694ea709128f43c856a98838612d81737f48b4-securities.parquet": {
+            "sha256": "dcb1248a2bbebfea41cb1324a32d3cbb50805b2ecef62e074755f1ccf830e7c2",
+            "size": 43970
+          },
+          "v2/reports/9a3d4f1a65baa95afaaf8e1b/report.json": {
+            "sha256": "b3f59b70fb3b16f69323518916966e2d22b871a107894e4c5be8014c0f0912b9",
+            "size": 87716
+          },
+          "v2/reports/9a3d4f1a65baa95afaaf8e1b/report.md": {
+            "sha256": "5e00fb5e44e6a540a56e504830fbe236a9876d09140dcf7cf21168f9cb062995",
+            "size": 5289
+          },
+          "v2/workbench.sqlite3": {
+            "sha256": "9e82d53cea3b5e6e13d67d4bb27b7034b3ac147797c310f4e0326182abf1a09c",
+            "size": 143360
+          }
+        },
+        "format": 2
+      }
+    },
+    {
+      "command": [
+        "restore",
+        "--backup",
+        "D:\\Study\\Codex\\QuantitativeTrading\\build\\package-qa\\20261111-214858211046\\data\\v2\\backups\\2026-11-11T134938.262143_0000-fab395.zip",
+        "--destination",
+        "D:\\Study\\Codex\\QuantitativeTrading\\build\\package-qa\\20261111-214858211046\\restored"
+      ],
+      "result": {
+        "path": "D:\\Study\\Codex\\QuantitativeTrading\\build\\package-qa\\20261111-214858211046\\restored",
+        "files": 13,
+        "verified": true
+      }
+    }
+  ],
+  "clean_windows_machine": false,
+  "installer_executed": false,
+  "note": "同机隔离目录验证，不替代干净Windows参考机验收。未修改正式账户或安装注册信息。"
+}

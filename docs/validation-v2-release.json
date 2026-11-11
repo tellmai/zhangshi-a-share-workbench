@@ -1,0 +1,21 @@
+{
+  "version": "1.0.0",
+  "source_commit": "785ced81dd6eeaab82eefb9397f50eea186b0178",
+  "code_hash": "d0ed935861e5faba238f81332ffef586734e779097d9431a1713d8003a9ab76a",
+  "synthetic_seed_only": true,
+  "artifacts": [
+    {
+      "file": "Zhangshi-Setup-1.0.0-x64.exe",
+      "size": 76594721,
+      "sha256": "86ebe77956e36e990cadbedc3c56134d32f997f16f2a637750a6d2d6c648a5dd"
+    },
+    {
+      "file": "Zhangshi-Portable-1.0.0-x64.zip",
+      "size": 84229418,
+      "sha256": "1b04929d591262c587a0cb02c561a1a300de1e262d314d35f51719e0f7748579"
+    }
+  ],
+  "desktop_smoke_passed": true,
+  "regression_passed": true,
+  "clean_windows_installation_validated": false
+}

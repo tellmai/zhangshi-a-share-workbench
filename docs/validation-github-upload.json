@@ -1,0 +1,16 @@
+{
+  "checked_at": "2026-11-11T14:21:43.449172+00:00",
+  "reviewed_through_commit": "785ced81dd6eeaab82eefb9397f50eea186b0178",
+  "branch": "main",
+  "history_commits_scanned": 9,
+  "tracked_files_at_review": 143,
+  "credential_format_matches": [],
+  "private_data_tree_matches": [],
+  "files_above_50_mib": [],
+  "origin_configured": true,
+  "authorization_available": true,
+  "repository_url": "https://github.com/tellmai/zhangshi-a-share-workbench",
+  "repository_private": true,
+  "upload_status": "ready_for_push",
+  "note": "常见凭据格式扫描，不等同于保证不存在任何敏感信息。远端提交须在推送后核对。"
+}

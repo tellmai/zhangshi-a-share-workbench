@@ -36,7 +36,13 @@ Windows本地盘后研究软件：采集核验、主线持续性、龙头证据�
 
 ## 源码与检查
 
-使用Python3.12：python -m pip install -r requirements-desktop.txt；可选数据源见requirements-data.txt。requirements-lock.txt记录本次完整运行环境。
+使用Python3.12，在源码目录创建独立运行环境；可选数据源见requirements-data.txt。requirements-lock.txt记录本次完整运行环境。
+
+```powershell
+py -3.12 -m venv .runtime-env
+.\.runtime-env\Scripts\python.exe -m pip install -r requirements-desktop.txt
+.\.runtime-env\Scripts\python.exe -m pip install -r requirements-data.txt
+```
 
 Git仓库只包含源码、测试、设计及验收文档。运行数据、原始参考资料、安装包、虚拟环境和构建缓存保留本机；安装包可按构建脚本与installer.iss重新生成。
 

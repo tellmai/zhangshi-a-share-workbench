@@ -1,0 +1,80 @@
+{
+  "ok": true,
+  "python": "3.12.14 (main, Aug 25 2026, 14:01:42) [MSC v.1944 64 bit (AMD64)]",
+  "checks": [
+    {
+      "name": "python",
+      "ok": true,
+      "seconds": 100.949,
+      "checks": 0,
+      "log": "D:\\Study\\Codex\\QuantitativeTrading\\build\\validation\\python.log"
+    },
+    {
+      "name": "test_quant_ui",
+      "ok": true,
+      "seconds": 1.231,
+      "checks": 16,
+      "log": "D:\\Study\\Codex\\QuantitativeTrading\\build\\validation\\test_quant_ui.log"
+    },
+    {
+      "name": "test_review_ui",
+      "ok": true,
+      "seconds": 0.138,
+      "checks": 7,
+      "log": "D:\\Study\\Codex\\QuantitativeTrading\\build\\validation\\test_review_ui.log"
+    },
+    {
+      "name": "test_sector_ui",
+      "ok": true,
+      "seconds": 0.173,
+      "checks": 4,
+      "log": "D:\\Study\\Codex\\QuantitativeTrading\\build\\validation\\test_sector_ui.log"
+    },
+    {
+      "name": "test_shortline_ui",
+      "ok": true,
+      "seconds": 0.265,
+      "checks": 6,
+      "log": "D:\\Study\\Codex\\QuantitativeTrading\\build\\validation\\test_shortline_ui.log"
+    },
+    {
+      "name": "test_sources_ui",
+      "ok": true,
+      "seconds": 0.161,
+      "checks": 5,
+      "log": "D:\\Study\\Codex\\QuantitativeTrading\\build\\validation\\test_sources_ui.log"
+    },
+    {
+      "name": "test_stock_ui",
+      "ok": true,
+      "seconds": 0.204,
+      "checks": 6,
+      "log": "D:\\Study\\Codex\\QuantitativeTrading\\build\\validation\\test_stock_ui.log"
+    },
+    {
+      "name": "test_sync_ui",
+      "ok": true,
+      "seconds": 0.167,
+      "checks": 7,
+      "log": "D:\\Study\\Codex\\QuantitativeTrading\\build\\validation\\test_sync_ui.log"
+    },
+    {
+      "name": "test_ui_modes",
+      "ok": true,
+      "seconds": 0.211,
+      "checks": 5,
+      "log": "D:\\Study\\Codex\\QuantitativeTrading\\build\\validation\\test_ui_modes.log"
+    },
+    {
+      "name": "test_v2_ui",
+      "ok": true,
+      "seconds": 0.216,
+      "checks": 10,
+      "log": "D:\\Study\\Codex\\QuantitativeTrading\\build\\validation\\test_v2_ui.log"
+    }
+  ],
+  "code_hash": "d0ed935861e5faba238f81332ffef586734e779097d9431a1713d8003a9ab76a",
+  "source_commit": "785ced81dd6eeaab82eefb9397f50eea186b0178",
+  "python_tests": 201,
+  "frontend_checks": 66
+}
