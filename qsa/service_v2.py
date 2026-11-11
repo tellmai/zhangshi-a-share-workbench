@@ -11,7 +11,7 @@ from .archive import backup, code_manifest, migrate, rotate_backups, run_manifes
 from .contracts import HistoryRequest, ResearchConfig, canonical, digest, in_universe, timestamp, utc_now
 from .data import SHANGHAI, atomic_json
 from .jobs import JobStore, launch_worker
-from .ledger import Ledger
+from .ledger import Ledger, trade_day
 from .mainline import evaluate_day
 from .providers import FreeProvider, register_calendar
 from .quality import assess, calendar_visible, context, legacy_view, normalize
@@ -189,6 +189,8 @@ class WorkbenchV2:
         if kind in ("scan", "report", "ingest", "backfill", "shadow"):
             _, source = self.data(payload.get("mode", "active"), payload.get("date"))
             payload["snapshot_id"] = source["snapshot_id"]
+        if kind in ("scan", "report"):
+            payload["history_revision"] = self.repo.revision_token(("history_cache",))
         if kind == "backtest":
             if payload.get("replay_id"):
                 run = self.repo.get("runs", payload["replay_id"])
@@ -203,6 +205,8 @@ class WorkbenchV2:
         if kind == "backfill":
             # Freeze queue membership before dispatch, independently of prices/ranks.
             dataset = self.repo.read_object(payload["snapshot_id"])
+            if dataset["meta"].get("mode") == "demo":
+                raise ValueError("演示快照不补采真实历史，请先更新基础报价")
             pool = sorted(s["code"] for s in dataset["stocks"] if in_universe(s, payload["config"]["boards"], dataset["meta"].get("mode") == "demo"))
             if payload.get("codes"):
                 from .contracts import symbol
@@ -220,7 +224,24 @@ class WorkbenchV2:
             payload["batch_size"] = limit
             start = int(self.repo.get("queue_cursors", "neutral", {}).get("cursor", 0)) % max(1, len(payload["codes"])) if payload["reason"] == "seed" else 0
             payload["queue_start"] = start
-            payload["batch_codes"] = payload["codes"][start:start+limit]
+            priority = {}
+            if payload["reason"] == "seed":
+                account = self.ledger.portfolio(dataset, asof=day+"T23:59:59+08:00")
+                for position in account["positions"]:
+                    if position["code"] in pool:
+                        priority[position["code"]] = "position"
+                watches = {c for w in self.repo.list("watchlists") if w.get("mode") == "real" for c in w.get("codes", [])}
+                previous = [d for d in dataset["meta"].get("calendar", []) if d < day]
+                plan_days = {day} | ({previous[-1]} if previous and calendar_visible(dataset["meta"], day+"T23:59:59+08:00") else set())
+                watches.update(c for p in self.repo.list("plans") if p.get("mode") == "real" and p.get("date") in plan_days for c in p.get("codes", []))
+                for code in sorted(watches):
+                    if code in pool and code not in priority:
+                        priority[code] = "watch"
+                priority = dict(list(priority.items())[:100])
+            neutral = payload["codes"][start:start+min(limit, 500-len(priority))]
+            payload["neutral_count"] = len(neutral)
+            payload["batch_codes"] = list(priority)+[c for c in neutral if c not in priority]
+            payload["code_reasons"] = {c: priority.get(c, payload["reason"]) for c in payload["batch_codes"]}
         job = self.jobs.enqueue(kind, day, payload, payload.get("snapshot_id") or payload.get("input_id") or APP_VERSION)
         if spawn and job["state"] == "queued":
             try:
@@ -312,7 +333,14 @@ class WorkbenchV2:
         if kind == "ingest":
             return self.warehouse.publish(dataset, payload["snapshot_id"])
         if kind == "backfill":
-            return self.backfill(job, dataset, progress)
+            result = self.backfill(job, dataset, progress)
+            if result["success"]:
+                progress(94, "补数完成，发布新的盘后研究修订")
+                next_job = self.enqueue("scan", {"date": job["trade_date"], "mode": payload.get("mode", "active"),
+                    "config": payload["config"], "trigger": "history-complete"}, spawn=False)
+                done = self.execute(next_job["id"])
+                result.update(research_job_id=next_job["id"], research_state=done["state"])
+            return result
         if kind in ("scan", "report"):
             dataset = self.enriched(dataset)
             snapshot = self.repo.register_snapshot(dataset, origin="history-enriched")
@@ -371,7 +399,7 @@ class WorkbenchV2:
                 bars = self.repo.read_object(row["data_id"])
                 receipt = {**receipt, "data": bars[-180:], "first_date": bars[0]["date"], "rows": len(bars)}
                 code = row.get("code") or receipt.get("metadata", {}).get("code")
-                if code and (code not in by_code or receipt["rows"] > by_code[code]["rows"]):
+                if code and code not in by_code:
                     by_code[code] = receipt
         for stock in result["stocks"]:
             receipt = by_code.get(stock["code"])
@@ -407,13 +435,13 @@ class WorkbenchV2:
             code = selected[index]
             progress(int(index/max(1,len(selected))*90), f"独立历史队列 {index+1}/{len(selected)} · {code}", {"cursor": index, "receipts": receipts})
             req = HistoryRequest(code=code, start=date.fromisoformat(payload.get("start") or (date.fromisoformat(day)-timedelta(days=90)).isoformat()),
-                end=date.fromisoformat(day), warmup=int(payload.get("warmup", 120)), reason=payload["reason"])
+                end=date.fromisoformat(day), warmup=int(payload.get("warmup", 120)), reason=payload.get("code_reasons", {}).get(code, payload["reason"]))
             result = provider.get_history(req)
             receipts.append({"code": code, "status": result.status, "reason": result.reason, "provider": result.provider_id,
                 "bars": len(result.data or []), "evidence_digest": result.evidence_digest, "metadata": result.metadata})
             progress(int((index+1)/max(1,len(selected))*90), f"已记录{index+1}/{len(selected)}个历史结果", {"cursor": index+1, "receipts": receipts})
         if payload["reason"] == "seed":
-            self.repo.put("queue_cursors", "neutral", {"cursor": (payload["queue_start"]+len(selected)) % max(1,len(codes)), "date": day})
+            self.repo.put("queue_cursors", "neutral", {"cursor": (payload["queue_start"]+payload.get("neutral_count", len(selected))) % max(1, len(codes)), "date": day})
         return {"requested": len(selected), "success": sum(r["status"] == "supported" for r in receipts), "receipts": receipts,
             "sampling": "按证券代码，不按当天强弱；失败与覆盖不足保留"}
 
@@ -454,6 +482,11 @@ class WorkbenchV2:
         return {"run_id": job["id"], "object_id": object_id, "status": result["status"]}
 
     def shadow(self, job, progress):
+        from .file_lock import data_lock
+        with data_lock(self.repo.home):
+            return self._shadow_locked(job, progress)
+
+    def _shadow_locked(self, job, progress):
         cfg = job["payload"]["config"]
         code = code_manifest()
         series = self.repo.get("shadow_series", "active")
@@ -489,15 +522,29 @@ class WorkbenchV2:
         result = self.repo.read_object(summary["object_id"])
         if result["status"] != "completed":
             return {**summary, "reason": result.get("failure"), "recorded_trades": 0}
+        previous = self.repo.get("shadow_progress", "active")
+        if previous and job["trade_date"] < previous["through"]:
+            return {**summary, "status": "BLOCKED", "reason": "影子账户已有更晚记录；历史区间请使用严格回测", "recorded_trades": 0}
+        if previous and digest([o for o in result["orders"] if o["date"] <= previous["through"]]) != previous["orders_digest"]:
+            raise Conflict("数据修订改变了既有影子成交，旧账本保留；请复核或使用新的独立data目录")
+        def order_key(order):
+            return (order.get("date") or trade_day(order["executed_at"]), order["code"], order["side"], order.get("signal_id"))
+        expected = {order_key(o): o for o in result["orders"]}
+        for old in self.ledger.trades("shadow"):
+            current = expected.get(order_key(old))
+            if not current or any(old[k] != current[k] for k in ("qty", "price", "fees")):
+                raise Conflict("已有影子账本与本次输入不一致，旧记录保留，停止追加")
         self.repo.put("shadow_series", "active", {"id": "active", "config_hash": digest(cfg), "code_hash": code["code_hash"],
             "engine_version": ENGINE_VERSION, "started_on": start}, immutable=True)
         count = 0
         for order in result["orders"]:
-            receipt = digest({k: order.get(k) for k in ("date", "code", "side", "qty", "price", "signal_id")})
+            receipt = digest({k: order.get(k) for k in ("date", "code", "side", "signal_id")})
             self.ledger.append_trade({"account": "shadow", "code": order["code"], "side": order["side"], "qty": order["qty"],
                 "price": order["price"], "fees": order["fees"], "executed_at": order["executed_at"], "signal_id": order.get("signal_id"),
                 "receipt": receipt, "note": order["reason"]})
             count += 1
+        self.repo.put("shadow_progress", "active", {"id": "active", "through": job["trade_date"],
+            "orders_digest": digest(result["orders"]), "input_id": input_id}, expected=previous["_revision"] if previous else 0)
         return {**summary, "recorded_trades": count, "account": "shadow"}
 
     def write_report(self, report):

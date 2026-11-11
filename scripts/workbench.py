@@ -78,7 +78,7 @@ def main(argv=None):
             except Exception as error:
                 service.alerts.emit(f"due:{day}:{kind}", "计划任务未能启动", str(error))
                 result["jobs"].append({"kind": kind, "state": "failed", "error": str(error)})
-        if "report" in kinds and trading_day(day) is True:
+        if ("report" in kinds or "backfill" in kinds) and trading_day(day) is True:
             try:
                 job = service.enqueue("shadow", {"date": day}, spawn=False)
                 result["jobs"].append(service.execute(job["id"]))

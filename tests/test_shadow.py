@@ -77,5 +77,33 @@ class PublishedShadowTests(unittest.TestCase):
         self.assertIn('独立data目录',done['error'])
         self.assertEqual(self.service.repo.get('shadow_series','active')['code_hash'],'old-engine-code')
 
+    def test_data_revision_cannot_rewrite_or_duplicate_executed_shadow_history(self):
+        sample=self.publish()
+        job=self.service.enqueue('shadow',{'date':sample[-1]['trade_date']},spawn=False)
+        done=self.service.execute(job['id'])
+        self.assertEqual(done['result']['status'],'completed',done)
+        before=self.service.ledger.trades('shadow')
+        self.assertTrue(before)
+        result=self.service.repo.read_object(done['result']['object_id'])
+        result['orders'][0]['price']+=.01
+        object_id=self.service.repo.object(result,'synthetic-revised-orders')
+        revised=self.service.enqueue('shadow',{'date':sample[-1]['trade_date'],'request_id':'revised'},spawn=False)
+        with patch.object(self.service,'backtest',return_value={'object_id':object_id,'status':'completed'}):
+            rejected=self.service.execute(revised['id'])
+        self.assertEqual(rejected['state'],'failed')
+        self.assertIn('数据修订',rejected['error'])
+        self.assertEqual(self.service.ledger.trades('shadow'),before)
+
+    def test_older_request_does_not_move_shadow_account_back_in_time(self):
+        sample=self.publish()
+        latest=self.service.enqueue('shadow',{'date':sample[-1]['trade_date']},spawn=False)
+        self.assertEqual(self.service.execute(latest['id'])['result']['status'],'completed')
+        before=self.service.ledger.trades('shadow')
+        earlier=self.service.enqueue('shadow',{'date':sample[-2]['trade_date']},spawn=False)
+        done=self.service.execute(earlier['id'])
+        self.assertEqual(done['state'],'completed',done.get('error'))
+        self.assertEqual(done['result']['status'],'BLOCKED')
+        self.assertEqual(self.service.ledger.trades('shadow'),before)
+
 
 if __name__=='__main__':unittest.main()
