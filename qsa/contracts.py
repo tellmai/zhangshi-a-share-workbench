@@ -74,7 +74,7 @@ def in_universe(stock, boards=("MAIN", "CHINEXT"), demo=False):
 
 
 class Contract(BaseModel):
-    model_config = ConfigDict(extra="forbid", allow_inf_nan=False, validate_assignment=True)
+    model_config = ConfigDict(extra="forbid", allow_inf_nan=False, validate_assignment=True, validate_default=True)
 
 
 class Provenance(Contract):

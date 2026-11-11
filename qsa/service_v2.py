@@ -455,21 +455,42 @@ class WorkbenchV2:
 
     def shadow(self, job, progress):
         cfg = job["payload"]["config"]
+        code = code_manifest()
         series = self.repo.get("shadow_series", "active")
-        if series and series["config_hash"] != digest(cfg):
-            raise Conflict("影子账户配置已改变；旧序列保留，需显式建立新研究账户后继续")
-        rows = self.repo.snapshot_rows("real", job["trade_date"])
-        available = sorted({r["trade_date"] for r in rows if r["available_at"]})
-        if not available:
-            return {"status": "BLOCKED", "reason": "没有可见历史快照，影子账户未虚构成交"}
-        payload = {"config": cfg, "start": available[0], "end": job["trade_date"], "template": "mainline_pullback"}
-        input_id = self.freeze_backtest(payload)
+        if series and (series["config_hash"] != digest(cfg) or series.get("code_hash") != code["code_hash"] or series.get("engine_version") != ENGINE_VERSION):
+            raise Conflict("影子账户配置或引擎已改变；旧序列保留，请使用新的独立data目录建立研究账户")
+        published = {}
+        for row in self.repo.list("reports", 100000):
+            if row["mode"] != "real" or row["trade_date"] > job["trade_date"] or row["config_hash"] != digest(cfg):
+                continue
+            report = self.repo.read_object(row["object_id"])
+            manifest = report["manifest"]
+            if manifest["engine_version"] != ENGINE_VERSION or manifest["code"]["code_hash"] != code["code_hash"]:
+                continue
+            cutoff = report["context"]["decision_time"]
+            decision_day = datetime.fromisoformat(cutoff).astimezone(SHANGHAI).date().isoformat()
+            saved_day = datetime.fromisoformat(row["_saved_at"]).astimezone(SHANGHAI).date().isoformat()
+            if decision_day != row["trade_date"] or saved_day != row["trade_date"]:
+                continue
+            old = published.get(row["trade_date"])
+            if not old or (row["_saved_at"], row["id"]) > (old["saved_at"], old["report_id"]):
+                published[row["trade_date"]] = {"trade_date": row["trade_date"], "snapshot_id": row["snapshot_id"],
+                    "decision_time": cutoff, "report_id": row["id"], "saved_at": row["_saved_at"]}
+        descriptors = [published[d] for d in sorted(published)]
+        if not descriptors:
+            return {"status": "BLOCKED", "reason": "没有当前引擎当日及时发布的冻结研究；补做旧日报告不生成历史影子成交", "recorded_trades": 0}
+        start = descriptors[0]["trade_date"]
+        manifest = run_manifest(None, cfg, None, source="published-report-shadow",
+            published_report_ids=[d["report_id"] for d in descriptors])
+        input_id = self.repo.object({"frames": descriptors, "config": cfg, "start": start, "end": job["trade_date"],
+            "template": "mainline_pullback", "mode": "real", "walk_forward": False, "stress": False, "manifest": manifest}, "shadow-input")
         synthetic_job = {**job, "payload": {**job["payload"], "input_id": input_id}}
         summary = self.backtest(synthetic_job, progress)
         result = self.repo.read_object(summary["object_id"])
         if result["status"] != "completed":
             return {**summary, "reason": result.get("failure"), "recorded_trades": 0}
-        self.repo.put("shadow_series", "active", {"id": "active", "config_hash": digest(cfg), "started_on": available[0]}, immutable=True)
+        self.repo.put("shadow_series", "active", {"id": "active", "config_hash": digest(cfg), "code_hash": code["code_hash"],
+            "engine_version": ENGINE_VERSION, "started_on": start}, immutable=True)
         count = 0
         for order in result["orders"]:
             receipt = digest({k: order.get(k) for k in ("date", "code", "side", "qty", "price", "signal_id")})

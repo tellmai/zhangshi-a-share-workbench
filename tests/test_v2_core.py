@@ -38,6 +38,12 @@ class V2CoreTests(unittest.TestCase):
         self.assertEqual(load_config("capital: 20000\nholding_days: 5")["max_positions"], 2)
         with self.assertRaises(Exception): load_config("!!python/object/apply:os.system ['echo wrong']")
 
+    def test_default_configuration_has_a_stable_freeze_digest(self):
+        default=ResearchConfig().model_dump()
+        frozen=ResearchConfig.model_validate(default).model_dump()
+        self.assertEqual(digest(default),digest(frozen))
+        self.assertEqual(digest(load_config('{}')),digest(frozen))
+
     def test_numeric_normalization_keeps_original_values_and_multiplier(self):
         from qsa.free_provider import normalization_record
         converted = normalization_record(123, 45, 12300, 450000)
