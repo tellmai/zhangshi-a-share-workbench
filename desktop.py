@@ -83,6 +83,10 @@ def main():
                     else:raise RuntimeError(view+'页面未完成加载')
                     error=window.evaluate_js('v2State.error')
                     if error:raise RuntimeError(view+'页面错误：'+str(error))
+                    if view=='portfolio':
+                        if not window.evaluate_js('Boolean(v2State.review && document.querySelector("#content").textContent.includes("执行偏差与盈亏归属"))'):
+                            raise RuntimeError('执行偏差与盈亏归属未完成加载')
+                        report['execution_review']=True
                     report[view]=True
                 report['v2_version']=window.evaluate_js('v2State.health.version')
                 report['data_directory']=str(data)

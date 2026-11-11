@@ -60,6 +60,15 @@ def legacy_view(dataset):
     return value
 
 
+def calendar_visible(meta, at=None):
+    if not meta.get("calendar_verified") or not meta.get("calendar_known_at"):
+        return False
+    try:
+        return timestamp(meta["calendar_known_at"]) <= timestamp(at or utc_now())
+    except (ValueError, TypeError):
+        return False
+
+
 def assess(dataset, boards=("MAIN", "CHINEXT"), decision_time=None):
     errors, reasons = [], []
     try:
@@ -95,7 +104,7 @@ def assess(dataset, boards=("MAIN", "CHINEXT"), decision_time=None):
             and s.get("valid_from", "9999") <= day and (not s.get("valid_to") or day < s["valid_to"])
             and (not decision_time or timestamp(s["known_at"]) <= timestamp(decision_time)) for s in states)
     complete = bool(value["meta"].get("complete")) and bool(pool) and quoted + halted == len(pool)
-    calendar = bool(value["meta"].get("calendar_verified"))
+    calendar = calendar_visible(value["meta"], decision_time)
     sectors = value.get("sectors", [])
     members = bool(sectors) and all(s.get("complete") and s.get("known_at") for s in sectors)
     if not complete:
@@ -105,7 +114,7 @@ def assess(dataset, boards=("MAIN", "CHINEXT"), decision_time=None):
     if limits != quoted or not quoted:
         reasons.append("部分证券缺少当日涨跌停价格")
     if not calendar:
-        reasons.append("交易日历未经独立核验")
+        reasons.append("交易日历未经核验或在决策时点前不可见")
     if historical != len(pool):
         reasons.append("历史补齐范围不足，存在选样偏差")
     if not members:

@@ -48,6 +48,9 @@ class V2APITests(unittest.TestCase):
         for path in ('/workbench.js','/workbench.css'):
             self.assertEqual(self.request(path)[0],200)
         self.assertEqual(self.request('/api/v1/trades',{},False)[0],403)
+        result=self.request('/api/v1/portfolio/review?account=manual')
+        self.assertEqual(result[0],200)
+        self.assertIn('strategy_realized',result[1]['data'])
 
     def test_settings_revision_does_not_rewrite_legacy_or_trade_opening_cash(self):
         service=self.work.v2

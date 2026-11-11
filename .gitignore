@@ -2,6 +2,13 @@ __pycache__/
 *.pyc
 data/
 .env
+.env.*
+!.env.example
+.credentials/
+credentials.json
+*.pem
+*.key
+.netrc
 .venv/
 .vendor/
 *.log

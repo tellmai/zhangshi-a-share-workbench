@@ -14,6 +14,7 @@ from pydantic import ValidationError
 from .contracts import ResearchConfig, TradeInput, canonical, digest, money, timestamp, utc_now
 from .data import SHANGHAI
 from .repository import Conflict
+from .quality import calendar_visible
 
 
 def trade_day(stamp):
@@ -72,6 +73,8 @@ class Ledger:
                 warnings.append("关联信号不存在或证券不匹配")
             elif not signal.get("setup_passed"):
                 warnings.append("未满足策略前置条件")
+            if signal and signal.get("decision_time") and timestamp(signal["decision_time"]) > row["executed_at"]:
+                warnings.append("成交早于信号形成，不能视为按该信号执行")
         if row["side"] == "buy" and row["qty"] % 100:
             warnings.append("买入股数不是100股整数倍，保留实际成交待核对")
         cfg = self.configuration()
@@ -124,14 +127,17 @@ class Ledger:
         cash = money(info["opening_cash"]) + sum((money(x["amount"]) for x in cashflows), Decimal(0))
         lots, realized, issues = defaultdict(list), [], []
         for t in rows:
-            qty, price, fees = t["qty"], money(t["price"]), money(t["fees"])
+            qty, price, fees = t["qty"], Decimal(str(t["price"])), money(t["fees"])
+            notional = money(price * qty)
             code = t["code"]
             if t["side"] == "buy":
-                cash -= price * qty + fees
-                lots[code].append({"qty": qty, "price": price, "fees": fees, "date": trade_day(t["executed_at"]), "trade_id": t["id"], "signal_id": t.get("signal_id"), "exit_plan": t.get("exit_plan", {})})
+                cash -= notional + fees
+                lots[code].append({"qty": qty, "price": price, "cost": notional, "fees": fees, "date": trade_day(t["executed_at"]), "trade_id": t["id"], "signal_id": t.get("signal_id"), "exit_plan": t.get("exit_plan", {})})
             else:
-                cash += price * qty - fees
+                cash += notional - fees
                 needed, basis, buy_fees = qty, Decimal(0), Decimal(0)
+                source_signals = set()
+                source_trades = set()
                 for lot in lots[code]:
                     if not needed:
                         break
@@ -139,15 +145,24 @@ class Ledger:
                     if take and lot["date"] == trade_day(t["executed_at"]):
                         issues.append(f"{code}实际成交存在T+1冲突，检查初始持仓或漏录")
                     original = lot["qty"]
-                    consumed_fee = lot["fees"] * take / original if original else Decimal(0)
-                    basis += lot["price"] * take
+                    consumed_fee = money(lot["fees"] * take / original) if original else Decimal(0)
+                    consumed_cost = money(lot["cost"] * take / original) if original else Decimal(0)
+                    basis += consumed_cost
                     buy_fees += consumed_fee
+                    if take:
+                        source_signals.add(lot.get("signal_id"))
+                        source_trades.add(lot["trade_id"])
+                    lot["cost"] -= consumed_cost
                     lot["fees"] -= consumed_fee
                     lot["qty"] -= take
                     needed -= take
                 if needed:
                     issues.append(f"{code}卖出{needed}股没有对应买入记录")
-                realized.append({"trade_id": t["id"], "code": code, "qty": qty, "pnl": float(money(price * qty - fees - basis - buy_fees)) if not needed else None})
+                realized.append({"trade_id": t["id"], "code": code, "qty": qty,
+                    "source_signal_ids": sorted(s for s in source_signals if s),
+                    "source_trade_ids": sorted(source_trades),
+                    "has_unlinked_source": None in source_signals or bool(needed),
+                    "pnl": float(money(notional - fees - basis - buy_fees)) if not needed else None})
             if cash < 0:
                 issues.append("现金出现负值，需核对入金、初始资金或漏录成交")
         marks = {}
@@ -165,11 +180,11 @@ class Ledger:
             qty = sum(x["qty"] for x in active)
             if not qty:
                 continue
-            cost = sum((x["price"] * x["qty"] + x["fees"] for x in active), Decimal(0))
+            cost = sum((x["cost"] + x["fees"] for x in active), Decimal(0))
             mark, mark_day = marks.get(code, (cost / qty, None))
             if mark_day and mark_day < max(x["date"] for x in active):
                 mark, mark_day = cost / qty, None
-            calendar_known = bool((dataset or {}).get("meta", {}).get("calendar_verified"))
+            calendar_known = calendar_visible((dataset or {}).get("meta", {}), cutoff)
             past_sessions = [d for d in (dataset or {}).get("meta", {}).get("calendar", []) if d <= day]
             expected_quote = past_sessions[-1] if calendar_known and past_sessions else day
             stale = not mark_day or mark_day < max(x["date"] for x in active) or mark_day < expected_quote

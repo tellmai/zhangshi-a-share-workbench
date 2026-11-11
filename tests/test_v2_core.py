@@ -225,6 +225,40 @@ class V2CoreTests(unittest.TestCase):
         self.assertEqual(prior[-1]["market"]["state"], "STRONG")
         self.assertFalse(prior[-1]["weak_to_strong"]["enabled"])
 
+    def test_leader_roles_distinguish_new_top_three_and_require_a_core_for_catch_up(self):
+        sample=frames(3)
+        current=evaluate_day(sample[-1]["dataset"], decision_time=sample[-1]["decision_time"])
+        sector=next(t for t in current["themes"] if t["type"]=="theme")
+        self.assertGreaterEqual(len(sector["leaders"]),3)
+        first,second,third=[x["code"] for x in sector["leaders"][:3]]
+        previous=[]
+        for f in sample[:2]:
+            previous.append({"context":{"trade_date":f["trade_date"],"decision_time":f["decision_time"]},
+                "themes":[{**sector,"rank":1,"leaders":[{"code":first,"rank":1},{"code":second,"rank":4},{"code":third,"rank":2}]}]})
+        result=evaluate_day(sample[-1]["dataset"], prior=previous, decision_time=sample[-1]["decision_time"])
+        roles={x["code"]:x["role"] for t in result["themes"] if t["type"]=="theme" for x in t["leaders"]}
+        self.assertEqual(roles[first],"CORE_LEADER")
+        self.assertEqual(roles[second],"EMERGING_LEADER")
+        self.assertEqual(roles[third],"CATCH_UP")
+        for p in previous:p["themes"][0]["leaders"][0]["rank"]=4
+        result=evaluate_day(sample[-1]["dataset"], prior=previous, decision_time=sample[-1]["decision_time"])
+        roles={x["code"]:x["role"] for t in result["themes"] if t["type"]=="theme" for x in t["leaders"]}
+        self.assertEqual(roles[first],"EMERGING_LEADER")
+        self.assertEqual(roles[third],"FOLLOWER")
+
+    def test_late_or_unknown_calendar_cannot_drive_past_replay_or_signal_expiry(self):
+        sample=frames(4)
+        sample[0]["dataset"]["meta"]["calendar_known_at"]=sample[0]["trade_date"]+"T21:00:00+08:00"
+        result=replay(sample,template="trend")
+        self.assertEqual(result["status"],"BLOCKED")
+        self.assertEqual(result["orders"],[])
+        data=sample[-1]["dataset"]
+        data["meta"].pop("calendar_known_at")
+        report=evaluate_day(data,decision_time=sample[-1]["decision_time"])
+        self.assertEqual(report["market"]["state"],"UNCERTAIN")
+        self.assertTrue(report["candidates"])
+        self.assertTrue(all(c["valid_until"] is None for c in report["candidates"]))
+
     def test_strict_replay_next_day_cash_and_causality(self):
         data = frames(10)
         result = replay(data, template="trend")

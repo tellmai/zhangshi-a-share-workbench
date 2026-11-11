@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 
 from .analytics import analyze
 from .contracts import ResearchConfig, board_of, digest, timestamp
-from .quality import assess, context, legacy_view
+from .quality import assess, calendar_visible, context, legacy_view
 from .quant import config_settings, evaluate
 from .risk import budget
 
@@ -48,7 +48,7 @@ def evaluate_day(dataset, config=None, prior=(), decision_time=None, snapshot_id
     prior_by_day = {r["context"]["trade_date"]: r for r in prior
         if r.get("context", {}).get("decision_time") and timestamp(r["context"]["decision_time"]) <= cutoff
         and r["context"]["trade_date"] in expected_days and r["context"]["trade_date"] < day}
-    history_complete = len(expected_days) == 3 and all(d == day or d in prior_by_day for d in expected_days)
+    history_complete = calendar_visible(dataset["meta"], cutoff) and len(expected_days) == 3 and all(d == day or d in prior_by_day for d in expected_days)
     sectors, candidates = [], {}
     source_stocks = {s["code"]: s for s in scoped["stocks"]}
     for kind, analysis in analyses.items():
@@ -68,14 +68,18 @@ def evaluate_day(dataset, config=None, prior=(), decision_time=None, snapshot_id
                 "persistent": bool(history_complete and hits >= 2 and rank <= 3),
                 "history_complete": history_complete, "overlap_group": sector["id"], "leaders": []}
             members = sorted([lookup[c] for c in sector["members"] if c in lookup and lookup[c]["selected"]], key=lambda r: (-r["score"], r["code"]))
+            past_positions = {}
+            for previous in prior_by_day.values():
+                old = next((t for t in previous.get("themes", []) if t["id"] == sector["id"]
+                    and t["classification"] == sector["classification"] and t["type"] == kind), None)
+                for leader in (old or {}).get("leaders", []):
+                    past_positions.setdefault(leader["code"], []).append(leader["rank"])
+            core_present = bool(members and history_complete and any(p <= 3 for p in past_positions.get(members[0]["code"], []))
+                and not any(e.get("risk") for e in source_stocks[members[0]["code"]].get("announcements", [])))
             for pos, stock in enumerate(members, 1):
-                previous_positions = []
-                for previous in prior_by_day.values():
-                    t = next((t for t in previous.get("themes", []) if t["id"] == sector["id"]
-                        and t["classification"] == sector["classification"]), None)
-                    previous_positions += [l["rank"] for l in (t or {}).get("leaders", []) if l["code"] == stock["code"]]
+                previous_positions = past_positions.get(stock["code"], [])
                 times = 1 + sum(p <= 3 for p in previous_positions)
-                role = "CORE_LEADER" if pos == 1 and history_complete and times >= 2 else "EMERGING_LEADER" if pos <= 3 and not previous_positions else "CATCH_UP" if pos <= 3 else "FOLLOWER"
+                role = "CORE_LEADER" if pos == 1 and history_complete and times >= 2 else "EMERGING_LEADER" if pos <= 3 and not any(p <= 3 for p in previous_positions) else "CATCH_UP" if pos <= 3 and core_present else "FOLLOWER"
                 if any(event.get("risk") for event in source_stocks[stock["code"]].get("announcements", [])):
                     role = "HIGH_RISK"
                 item["leaders"].append({"code": stock["code"], "name": stock["name"], "rank": pos, "score": stock["score"], "role": role})
@@ -106,7 +110,7 @@ def evaluate_day(dataset, config=None, prior=(), decision_time=None, snapshot_id
                     "invalidation": "跌破三日结构低点、收盘退出条件成立、主线失效或持有到期；T+1及跌停可能延后退出。",
                     "decision_time": cutoff, "valid_until": None, "snapshot_id": snapshot_id,
                     "config_hash": digest(cfg), "historical_statistics": None}
-                next_days = [d for d in dataset["meta"]["calendar"] if d > day]
+                next_days = [d for d in dataset["meta"]["calendar"] if d > day] if calendar_visible(dataset["meta"], cutoff) else []
                 candidate["valid_until"] = timestamp(next_days[0] + "T15:00:00+08:00") if next_days else None
                 candidate["validity_note"] = "次一交易日收盘失效；日历无未来会话时待核验，不推送交易确认"
                 if stop:

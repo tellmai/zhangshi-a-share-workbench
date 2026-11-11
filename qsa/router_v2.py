@@ -54,9 +54,13 @@ def dispatch(service, method, url, payload=None):
                 if not signal:
                     raise ValueError("候选证据不存在")
                 return response(signal)
-            if path == "portfolio":
+            if path in ("portfolio", "portfolio/review"):
                 dataset, snapshot = service.data(mode, day)
-                return response(service.ledger.portfolio(dataset, get("account", "manual"), get("asof")), ctx=context(dataset, snapshot["snapshot_id"], quality=snapshot["quality"]))
+                portfolio = service.ledger.portfolio(dataset, get("account", "manual"), get("asof"))
+                if path.endswith("/review"):
+                    from .execution import review
+                    portfolio = review(service.repo, service.ledger, portfolio)
+                return response(portfolio, ctx=context(dataset, snapshot["snapshot_id"], quality=snapshot["quality"]))
             if path == "trades":
                 return response(service.ledger.trades(get("account", "manual")))
             if path.startswith("trades/"):

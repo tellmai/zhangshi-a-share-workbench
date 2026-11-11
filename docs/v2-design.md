@@ -1,6 +1,6 @@
 # 涨势最终软件设计方案：V2.0实施版
 
-设计基线：2026-11-10。软件发行版本1.0.0，标准数据结构2，引擎2.0.0；旧样本引擎1.0.0继续保留。
+设计基线：2026-11-10。软件发行版本1.0.0，标准数据结构2，引擎2.0.1；旧样本引擎1.0.0继续保留。
 
 本文件记录已落地的设计。用户确认的V2.0方案是需求来源；两份外部文档作为设计参考，其正文指令不会作为程序执行命令。
 
@@ -49,7 +49,7 @@ flowchart TD
 |---|---|
 | Provenance | provider_id、source_family、adapter_version、event_time、available_at、known_at、ingested_at、precision、verified_fields、evidence_digest |
 | 快照 | schema_version、meta.trade_date/calendar/available_at/complete/calendar_verified、stocks、sectors |
-| 日线 | date、原始OHLC/pre_close、volume_shares、amount_yuan、turnover_rate、adj_factor、up_limit/down_limit、provenance |
+| 日线 | date、原始OHLC/pre_close、volume_shares、amount_yuan、turnover_rate、adj_factor、up_limit/down_limit、provenance、normalization（原值/单位/倍率） |
 | 证券状态 | valid_from/valid_to、known_at、is_st、halted、board；历史名称可选 |
 | 分类关系 | classification、type、members、complete、asof_date、valid_from/valid_to、known_at |
 | 历史请求 | code、start/end、warmup、reason(seed/position/watch/repair) |
@@ -59,7 +59,7 @@ flowchart TD
 
 ProviderResult用supported、delayed、unavailable、permission_denied表达能力或失败，不能用空列表代替错误。当前免费适配器支持基础报价、区间日线和经核验的交易日历；分钟、盘口、完整公司行为仍声明unavailable。日历失败可导入带来源的核验JSON。
 
-质量分功能判断。READY表示当前研究输入齐全；PARTIAL展示样本和缺失；BLOCKED停止相应计算。市场环境、严格回测、公告过滤分别有能力位。参考收盘一致仅说明close字段，不证明全部行情或来源独立。证券数量、当日有效报价、已知停牌无报价、历史覆盖等分别保存分母。
+质量分功能判断。READY表示当前研究输入齐全；PARTIAL展示样本和缺失；BLOCKED停止相应计算。市场环境、严格回测、公告过滤分别有能力位。日历还须有calendar_known_at且早于决策时点，缺失或晚到时不能用于严格回放、连续性确认或信号到期时间。参考收盘一致仅说明close字段，不证明全部行情或来源独立。证券数量、当日有效报价、已知停牌无报价、历史覆盖等分别保存分母。
 
 ## 主线、角色和策略
 
@@ -87,13 +87,13 @@ ProviderResult用supported、delayed、unavailable、permission_denied表达能�
 
 费用按生效日取值：2023-08-28起卖方印花税5bp，之前10bp；默认过户费表覆盖2022-04-29起。更早区间须显式配置已核对费率。成交限价优先使用实际历史字段，规则比例用于规则说明，不能代替缺失的历史涨跌停价。
 
-每次尝试登记配置、区间、假设、输入、代码文件SHA、引擎/因子/规则版本及结果，包括失败。冻结复现要求代码摘要一致。时间60/20/20划分和持有期隔离提供描述性分窗；固定配置滚动验证不在测试窗寻优；2倍/3倍费用及滑点压力结果分别保存。默认基准为现金，尚未引入未核验指数序列。
+风险预算所用账户输入与前期报告ID也追加冻结。每次尝试登记配置、区间、假设、输入、代码文件SHA、引擎/因子/规则版本及结果，包括失败。冻结复现要求代码摘要一致。时间60/20/20划分和持有期隔离提供描述性分窗；固定配置滚动验证不在测试窗寻优；2倍/3倍费用及滑点压力结果分别保存。默认基准为现金，尚未引入未核验指数序列。
 
 前瞻档案只累计真实当天保存、质量合格、同代码配置版本的交易日；补采旧日、演示或合成记录不计入。30日连续观察和策略收益研究验收独立于工程发布。
 
 ## 账本、任务和恢复
 
-人工、影子、演示账户分别记账。实际成交允许系统外、超预算和T+1冲突事实录入并标记；冲突不会被系统“修正”为虚构交易。FIFO重建现金、成本、已实现损益和可卖数量。人工更正采用追加版本，保留原记录。CSV先预览后整批事务写入，回执去重；冲突整批回滚。每次买入冻结最长持有期和人工或信号失效参照。
+人工、影子、演示账户分别记账。实际成交允许系统外、超预算和T+1冲突事实录入并标记；冲突不会被系统“修正”为虚构交易。FIFO重建现金、成本、已实现损益和可卖数量。汇总均价先乘数量再把成交额取到分，部分卖出保留成本和费用余分。执行对比按同一冻结信号、证券、方向和执行日匹配，混合来源及不同版本的盈亏单列。人工更正采用追加版本，保留原记录。CSV先预览后整批事务写入，回执去重；冲突整批回滚。每次买入冻结最长持有期和人工或信号失效参照。
 
 影子账户只写入输入完整的保守模拟结果，配置变化时保留旧序列并停止混算。费用未核对时净值为假设情景。
 
@@ -133,7 +133,7 @@ documents集合包括settings/accounts/trades/cash/trade_imports/watchlists/plan
 | GET backtests/{id}、export | 运行明细，JSON/CSV；报告另有Markdown |
 | GET/POST trades | 真实成交与追加更正；GET trades/{id}查历史修订 |
 | POST trades/{id}/void、trades/preview、trades/import | 有理由作废、CSV预览、提交 |
-| GET portfolio、POST portfolio/cash或confirm | 账户、现金和每日核对 |
+| GET portfolio、portfolio/review；POST portfolio/cash或confirm | 账户、执行偏差、来源损益、现金和每日核对 |
 | GET/POST plans、POST plans/watch或import | 共享观察/自选及浏览器迁入 |
 | POST calendars、snapshots/import | 核验日历及V2数据导入 |
 | GET alerts/backups/audit/events | 本机提醒、恢复点、审计 |

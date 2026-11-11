@@ -14,7 +14,7 @@ from .jobs import JobStore, launch_worker
 from .ledger import Ledger
 from .mainline import evaluate_day
 from .providers import FreeProvider, register_calendar
-from .quality import assess, context, legacy_view, normalize
+from .quality import assess, calendar_visible, context, legacy_view, normalize
 from .repository import Conflict, Repository
 from .version import APP_VERSION, ENGINE_VERSION
 from .warehouse import Warehouse
@@ -336,7 +336,7 @@ class WorkbenchV2:
                 self.repo.put("signals", signal["signal_id"], signal, immutable=True)
             self.write_report(report)
             next_days = [d for d in dataset["meta"].get("calendar", []) if d > job["trade_date"]]
-            expiry_day = next_days[0] if next_days and dataset["meta"].get("calendar_verified") else job["trade_date"]
+            expiry_day = next_days[0] if next_days and calendar_visible(dataset["meta"], report["context"]["decision_time"]) else job["trade_date"]
             expiry = expiry_day + "T23:59:59+08:00"
             for account in ("demo",) if mode == "demo" else ("manual", "shadow"):
                 portfolio = self.ledger.portfolio(dataset, account, asof=report["context"]["decision_time"])

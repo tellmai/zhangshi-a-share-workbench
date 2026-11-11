@@ -8,7 +8,8 @@ from decimal import Decimal
 from .contracts import ResearchConfig, board_of, money, timestamp
 from .mainline import evaluate_day
 from .market_rules import dated_cost, visible_state
-from .quality import assess
+from .quality import assess, calendar_visible
+from .version import ENGINE_VERSION
 from .quant import adjustment_changed, config_settings, evaluate, fill_block
 from .risk import budget
 
@@ -57,7 +58,7 @@ def replay(frames, config=None, template="mainline_pullback", progress=lambda *_
         raise ValueError("每个交易日只能选择一个可见版本")
     first = load(ordered[0])
     calendar = [d for d in first["meta"]["calendar"] if (requested_start or days[0]) <= d <= (requested_end or days[-1])]
-    if days != calendar or not first["meta"].get("calendar_verified"):
+    if days != calendar or not calendar_visible(first["meta"], ordered[0].get("decision_time") or days[0]+"T19:30:00+08:00"):
         return {"status": "BLOCKED", "metrics": None, "failure": "缺少区间内完整、已核验交易日快照", "curve": [], "trades": [], "orders": []}
     cash = money(cfg["capital"])
     positions, pending, curve, trades, orders, reports = {}, [], [], [], [], []
@@ -227,7 +228,7 @@ def replay(frames, config=None, template="mainline_pullback", progress=lambda *_
             "total_fees": float(money(sum(fee_totals.values()))), "open_positions": len(positions),
             "mean_trade_pnl": round(sum(t["pnl"] for t in trades)/len(trades), 2) if trades else None}
     return {"status": "incomplete" if failure and curve else "BLOCKED" if failure else "completed", "failure": failure,
-        "engine": "strict-point-in-time-2.0.0", "template": template, "config": cfg, "metrics": metrics,
+        "engine": "strict-point-in-time-"+ENGINE_VERSION, "template": template, "config": cfg, "metrics": metrics,
         "start": days[0], "end": days[-1], "computed_through": curve[-1]["date"] if curve else None,
         "curve": curve, "trades": trades, "orders": orders, "skips": dict(skips), "fees": dict(fee_totals),
         "open_positions": [{"code": c, **{k: float(v) if isinstance(v, Decimal) else v for k, v in p.items()}} for c, p in positions.items()],

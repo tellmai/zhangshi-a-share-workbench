@@ -45,5 +45,9 @@ async function main(){
   await run("v2SyncWatch('real:600001.SH',true)");await run("v2SyncPlan('real:2026-11-10',{codes:['600001.SH'],note:'n'})");
   assert.equal(calls[0][1].add,'600001.SH');assert.equal(calls[1][1].expected_revision,2);
   console.log('PASS: shared watch changes are incremental and plan edits use revision checks');
+  run("v2State.review={reference_account:'shadow',comparable_groups:0,account_incomplete:true,note:'<unsafe>',rows:[{code:'600001.SH',side:'buy',status:'DIFFERENT_EXECUTION_DATE',actual:{qty:100,vwap:10,fees:5},shadow:{qty:100,vwap:9,fees:5},adverse_price_bps:null}],strategy_realized:[]}");
+  const review=run('v2ExecutionHTML()');assert.match(review,/执行日期不同/);assert.match(review,/待核对/);assert.doesNotMatch(review,/<unsafe>/);
+  assert.match(run('portfolioV2View()'),/执行偏差与盈亏归属/);
+  console.log('PASS: execution comparison shows date mismatches and escapes review evidence');
 }
 main().catch(e=>{console.error(e);process.exitCode=1});

@@ -40,6 +40,7 @@ def frames(count=9):
             "valid_from": day, "known_at": day+"T08:00:00+08:00", "available_at": day+"T08:00:00+08:00"} for kind in ("industry", "theme")]
         dataset = {"schema_version": 2, "meta": {"trade_date": day, "source": "synthetic-test-evidence",
             "mode": "import", "synthetic": True, "calendar": days, "calendar_verified": True,
+            "calendar_known_at": "2026-01-01T00:00:00+08:00", "calendar_source": "synthetic-test-calendar",
             "security_master_complete": True, "complete": True, "expected_count": 5, "currency": "CNY",
             "available_at": timestamp(day+"T17:00:00+08:00"), "fetched_at": day+"T17:00:00+08:00",
             "universe": "五只合成测试证券，不是真实行情"}, "stocks": stocks, "sectors": sectors}

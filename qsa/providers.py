@@ -101,6 +101,7 @@ class FreeProvider:
             for bar in stock.get("bars", []):
                 if not bar["provenance"].get("evidence_digest"):
                     bar["provenance"]["evidence_digest"] = receipt
+        value["meta"]["available_at"] = utc_now()
         self.snapshot = value
         return ProviderResult("supported", value, provider_id=self.id, source_family=self.family,
             available_at=value["meta"]["available_at"], evidence_digest=receipt,
