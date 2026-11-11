@@ -31,11 +31,14 @@ Windows本地盘后研究软件：采集核验、主线持续性、龙头证据�
 - [操作、后台任务、升级及恢复手册](docs/v2-manual.md)
 - [详细实施跟踪与后续验收计划](docs/v2-implementation.md)
 - [本次验证记录](docs/v2-validation.md)
+- [代码完成情况复核](docs/completion-audit.md)
 - 既有模块：[桌面](docs/desktop.md)、[策略实验室](docs/quant-lab.md)、[数据源](docs/data-sources.md)、[原快照格式](docs/snapshot-format.md)。这些文档描述旧模块，版本与入口以新版手册为准。
 
 ## 源码与检查
 
 使用Python3.12：python -m pip install -r requirements-desktop.txt；可选数据源见requirements-data.txt。requirements-lock.txt记录本次完整运行环境。
+
+Git仓库只包含源码、测试、设计及验收文档。运行数据、原始参考资料、安装包、虚拟环境和构建缓存保留本机；安装包可按构建脚本与installer.iss重新生成。
 
 ```powershell
 .\.runtime-env\Scripts\python.exe app.py --port 8766

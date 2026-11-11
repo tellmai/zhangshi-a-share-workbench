@@ -49,5 +49,8 @@ async function main(){
   const review=run('v2ExecutionHTML()');assert.match(review,/执行日期不同/);assert.match(review,/待核对/);assert.doesNotMatch(review,/<unsafe>/);
   assert.match(run('portfolioV2View()'),/执行偏差与盈亏归属/);
   console.log('PASS: execution comparison shows date mismatches and escapes review evidence');
+  run("v2State.edit={code:'600001.SH',side:'buy',qty:200,price:10.005,fees:5,executed_at:'2026-10-21T02:00:00+00:00'}");
+  assert.match(run('portfolioV2View()'),/name="price"[^>]*step="any"[^>]*value="10.005"/);
+  console.log('PASS: an imported multi-decimal average price remains editable without rounding');
 }
 main().catch(e=>{console.error(e);process.exitCode=1});
