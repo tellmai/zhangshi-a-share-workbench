@@ -41,7 +41,7 @@
 - Git忽略运行数据、原始外部资料、虚拟环境、构建产物、日志及常见密钥文件。
 - 上传前检查Git历史中的凭据格式、被禁止目录及大文件；结果保存为validation-github-upload.json。
 - 安装包和便携包保留在本机release目录，源代码包可独立提供。
-- 已核对tellmai账号并创建私有仓库：https://github.com/tellmai/zhangshi-a-share-workbench 。上传状态及远端提交校验见validation-github-upload.json。
+- 已核对tellmai账号并上传至[私有仓库tellmai/zhangshi-a-share-workbench](https://github.com/tellmai/zhangshi-a-share-workbench)。main分支提交及完整文件树通过GitHub API和git ls-remote双重核对；上传验收证据见validation-github-upload.json。
 
 ## 仍需实际完成的验收
 

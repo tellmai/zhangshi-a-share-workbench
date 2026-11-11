@@ -1,9 +1,9 @@
 {
-  "checked_at": "2026-11-11T14:21:43.449172+00:00",
-  "reviewed_through_commit": "785ced81dd6eeaab82eefb9397f50eea186b0178",
+  "checked_at": "2026-11-11T14:23:51.368509+00:00",
+  "reviewed_through_commit": "8aacaac0e0316e678b0d6461c4458da20373a953",
   "branch": "main",
-  "history_commits_scanned": 9,
-  "tracked_files_at_review": 143,
+  "history_commits_scanned": 10,
+  "tracked_files_at_review": 152,
   "credential_format_matches": [],
   "private_data_tree_matches": [],
   "files_above_50_mib": [],
@@ -11,6 +11,10 @@
   "authorization_available": true,
   "repository_url": "https://github.com/tellmai/zhangshi-a-share-workbench",
   "repository_private": true,
-  "upload_status": "ready_for_push",
-  "note": "常见凭据格式扫描，不等同于保证不存在任何敏感信息。远端提交须在推送后核对。"
+  "upload_status": "verified",
+  "note": "已通过GitHub API及git ls-remote核对私有仓库main、完整提交与文件树；此记录指向已验证的交付提交，随后仅追加上传验收记录。",
+  "remote_commit_verified": "8aacaac0e0316e678b0d6461c4458da20373a953",
+  "remote_tree_verified": "dbedc9d00b86f1b1c509a8d62faaebc67f28b165",
+  "local_remote_match": true,
+  "source_commit": "785ced81dd6eeaab82eefb9397f50eea186b0178"
 }
